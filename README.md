@@ -1,4 +1,4 @@
-# 🛒 E-commerce White Label – Gestão de Pedidos e Estoque
+# 🛒 E-commerce White Label – LLKids
 
 Este projeto implementa um sistema de **e-commerce white label**, permitindo que diferentes clientes utilizem a mesma plataforma personalizada com sua identidade visual.  
 O sistema contempla desde o **cadastro de usuários** até a **gestão de produtos, pedidos e pagamentos**, tanto para usuários quanto para administradores.

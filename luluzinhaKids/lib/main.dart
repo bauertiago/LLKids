@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
         //Inputs
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Color(0xFFF6F8FF),
+          fillColor: Color(0xFFFFFEFE),
           hintStyle: TextStyle(color: Color(0xFFCFD4EC)),
           labelStyle: TextStyle(color: Color(0xFF404557)),
           floatingLabelStyle: TextStyle(

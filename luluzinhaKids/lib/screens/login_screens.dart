@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:luluzinhakids/screens/register_screen.dart';
+import 'package:luluzinhakids/widgets/custom_input.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,7 +12,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreen extends State<LoginScreen> {
-  bool isVisible = true;
+  bool isVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,33 +48,28 @@ class _LoginScreen extends State<LoginScreen> {
               ),
 
               const SizedBox(height: 32),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "E-mail",
-                  prefixIcon: Icon(Icons.email_outlined),
-                  isDense: true,
-                  fillColor: Color(0xFFFFFEFE),
-                ),
+              const CustomInput(
+                hintText: "E-mail",
+                prefixIcon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
               ),
 
               const SizedBox(height: 16),
-              TextField(
+              CustomInput(
+                hintText: "Senha",
+                prefixIcon: Icons.password,
                 obscureText: !isVisible,
-                decoration: InputDecoration(
-                  hintText: "Senha",
-                  isDense: true,
-                  fillColor: Color(0xFFFFFEFE),
-                  prefixIcon: Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      isVisible ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isVisible = !isVisible;
-                      });
-                    },
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isVisible
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      isVisible = !isVisible;
+                    });
+                  },
                 ),
               ),
 
@@ -98,7 +95,7 @@ class _LoginScreen extends State<LoginScreen> {
 
               const SizedBox(height: 16),
               SizedBox(
-                width: double.infinity, // ocupa toda a largura
+                width: double.infinity,
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
@@ -111,7 +108,7 @@ class _LoginScreen extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    backgroundColor: Colors.white, // fundo branco
+                    backgroundColor: Colors.white,
                   ),
                   icon: Image.asset(
                     'assets/images/logoGoogle.png',
@@ -140,7 +137,16 @@ class _LoginScreen extends State<LoginScreen> {
                           style: theme.textTheme.titleLarge!.copyWith(
                             color: theme.colorScheme.primary,
                           ),
-                          recognizer: TapGestureRecognizer()..onTap = () {},
+                          recognizer:
+                              TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Register(),
+                                    ),
+                                  );
+                                },
                         ),
                       ],
                     ),

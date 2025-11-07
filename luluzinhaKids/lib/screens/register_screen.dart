@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
 class Register extends StatefulWidget {
@@ -47,12 +48,10 @@ class _Register extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -61,19 +60,19 @@ class _Register extends State<Register> {
                 child: Icon(
                   Icons.person_add,
                   size: 100,
-                  color: theme.colorScheme.primary,
+                  color: context.colors.primary,
                 ),
               ),
 
               const SizedBox(height: 8),
               Text(
                 "Vamos Começar!",
-                style: theme.textTheme.titleMedium,
+                style: context.texts.titleMedium,
                 textAlign: TextAlign.center,
               ),
               Text(
                 "Preencha seus dados para se cadastrar",
-                style: theme.textTheme.bodyMedium,
+                style: context.texts.bodyMedium,
                 textAlign: TextAlign.center,
               ),
 
@@ -178,14 +177,14 @@ class _Register extends State<Register> {
               const SizedBox(height: 16),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
+                  backgroundColor: context.colors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 onPressed: () {},
-                child: Text("Cadastrar", style: theme.textTheme.labelLarge),
+                child: Text("Cadastrar", style: context.texts.labelLarge),
               ),
 
               Center(
@@ -194,12 +193,12 @@ class _Register extends State<Register> {
                   child: Text.rich(
                     TextSpan(
                       text: "Já possui uma conta? ",
-                      style: theme.textTheme.bodyMedium,
+                      style: context.texts.bodyMedium,
                       children: [
                         TextSpan(
                           text: "Faça login",
-                          style: theme.textTheme.titleLarge!.copyWith(
-                            color: theme.colorScheme.primary,
+                          style: context.texts.titleLarge!.copyWith(
+                            color: context.colors.primary,
                           ),
                           recognizer:
                               TapGestureRecognizer()

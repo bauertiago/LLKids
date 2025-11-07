@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/screens/home_screen.dart';
 import 'package:luluzinhakids/screens/register_screen.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
@@ -8,20 +10,18 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _LoginScreen();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreen extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   bool isVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -38,13 +38,13 @@ class _LoginScreen extends State<LoginScreen> {
               Text(
                 "Bem Vindo!",
                 textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium,
+                style: context.texts.titleMedium,
               ),
 
               Text(
                 "Faça login para continuar",
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium,
+                style: context.texts.bodyMedium,
               ),
 
               const SizedBox(height: 32),
@@ -76,21 +76,26 @@ class _LoginScreen extends State<LoginScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
+                  backgroundColor: context.colors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {},
-                child: Text("Entrar", style: theme.textTheme.labelLarge),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HomeScreen()),
+                  );
+                },
+                child: Text("Entrar", style: context.texts.labelLarge),
               ),
 
               const SizedBox(height: 16),
               Text(
                 "ou",
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium,
+                style: context.texts.bodyMedium,
               ),
 
               const SizedBox(height: 16),
@@ -117,7 +122,7 @@ class _LoginScreen extends State<LoginScreen> {
                   ),
                   label: Text(
                     "Entrar com o Google",
-                    style: theme.textTheme.bodyMedium,
+                    style: context.texts.bodyMedium,
                   ),
                   onPressed: () {},
                 ),
@@ -130,12 +135,12 @@ class _LoginScreen extends State<LoginScreen> {
                   child: Text.rich(
                     TextSpan(
                       text: "Não tem uma conta? ",
-                      style: theme.textTheme.bodyMedium,
+                      style: context.texts.bodyMedium,
                       children: [
                         TextSpan(
                           text: "Cadastre-se",
-                          style: theme.textTheme.titleLarge!.copyWith(
-                            color: theme.colorScheme.primary,
+                          style: context.texts.titleLarge!.copyWith(
+                            color: context.colors.primary,
                           ),
                           recognizer:
                               TapGestureRecognizer()

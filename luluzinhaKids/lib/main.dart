@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:luluzinhakids/screens/login_screens.dart';
+import 'package:luluzinhakids/screens/login_screen.dart';
 
 class BrandColors {
   final Color primaryColor;

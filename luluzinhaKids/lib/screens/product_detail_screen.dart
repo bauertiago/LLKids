@@ -2,12 +2,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/models/product.dart';
 import 'package:luluzinhakids/screens/main_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> product;
+  final Product product;
   final int currentIndex;
 
   const ProductDetailScreen({
@@ -114,7 +115,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Image.asset(
-          widget.product['image'],
+          widget.product.nameImage,
           height: 350,
           fit: BoxFit.cover,
         ),
@@ -123,14 +124,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildInfo() {
-    final double price = widget.product['price'];
+    final double price = widget.product.salePrice;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.product['title'], style: context.texts.titleLarge),
+          Text(widget.product.name, style: context.texts.titleLarge),
           const SizedBox(height: 4),
           Text(
             "À vista ${currencyFormat.format(price)}",

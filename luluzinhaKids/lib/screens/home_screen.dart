@@ -1,10 +1,15 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/models/product.dart';
+import 'package:luluzinhakids/models/product_mock.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 import 'package:intl/intl.dart';
+
+import '../services/product_service.dart';
+import 'categoriesScreens/category_products_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,27 +19,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _productService = ProductService();
+  late List<Product> _highlights;
+
+  @override
+  void initState() {
+    super.initState();
+    _highlights = _productService.getHighlights();
+  }
+
   final NumberFormat currencyFormat = NumberFormat.currency(
     locale: 'pt_BR',
     symbol: 'R\$',
   );
-  final List<Map<String, dynamic>> _highlights = [
-    {
-      "title": "Conjunto Tricot",
-      "price": 159.90,
-      "image": "assets/images/conjunto_tricot.jpeg",
-    },
-    {
-      "title": "Conjunto Moletom",
-      "price": 179.90,
-      "image": "assets/images/moletom_beje.jpeg",
-    },
-    {
-      "title": "Blusa Canelada Listrada",
-      "price": 79.90,
-      "image": "assets/images/blusa_canelada_listras.jpeg",
-    },
-  ];
+
   int _currentIndex = 0;
 
   @override
@@ -74,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
       "Calças",
       "Camisetas",
       "Shorts",
-      "Bermudas",
       "Vestidos",
       "Praia",
     ];
@@ -96,7 +93,21 @@ class _HomeScreenState extends State<HomeScreen> {
     return InkResponse(
       containedInkWell: true,
       borderRadius: BorderRadius.circular(50),
-      onTap: () {},
+      onTap: () {
+        final categoryName = texto;
+        if (mockProduct.containsKey(categoryName)) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => CategoryProductsScreen(
+                    title: categoryName,
+                    products: mockProduct[categoryName]!,
+                  ),
+            ),
+          );
+        }
+      },
       child: Container(
         width: 100,
         height: 100,
@@ -165,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> item) {
+  Widget _buildProductCard(Product item) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -178,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(item["image"], fit: BoxFit.cover),
+            Image.asset(item.nameImage, fit: BoxFit.cover),
             Container(
               alignment: Alignment.bottomLeft,
               padding: const EdgeInsets.all(16),
@@ -193,9 +204,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item["title"], style: context.texts.labelLarge),
+                  Text(item.name, style: context.texts.labelLarge),
                   Text(
-                    currencyFormat.format(item["price"]),
+                    currencyFormat.format(item.salePrice),
                     style: context.texts.labelSmall,
                   ),
                   Text("COMPRAR >", style: context.texts.labelMedium),

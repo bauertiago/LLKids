@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/screens/home_screen.dart';
+import 'package:luluzinhakids/screens/main_screen.dart';
 import 'package:luluzinhakids/screens/register_screen.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
@@ -83,9 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => HomeScreen()),
+                    MaterialPageRoute(builder: (_) => MainScreen()),
                   );
                 },
                 child: Text("Entrar", style: context.texts.labelLarge),

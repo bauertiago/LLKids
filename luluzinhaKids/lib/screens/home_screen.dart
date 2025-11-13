@@ -2,7 +2,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
+import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,21 +14,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final NumberFormat currencyFormat = NumberFormat.currency(
+    locale: 'pt_BR',
+    symbol: 'R\$',
+  );
   final List<Map<String, dynamic>> _highlights = [
     {
-      "titulo": "Conjunto Tricot",
-      "preco": "R\$ 159,90",
-      "imagem": "assets/images/conjunto_tricot.jpeg",
+      "title": "Conjunto Tricot",
+      "price": 159.90,
+      "image": "assets/images/conjunto_tricot.jpeg",
     },
     {
-      "titulo": "Conjunto Moletom",
-      "preco": "R\$ 179,90",
-      "imagem": "assets/images/moletom_beje.jpeg",
+      "title": "Conjunto Moletom",
+      "price": 179.90,
+      "image": "assets/images/moletom_beje.jpeg",
     },
     {
-      "titulo": "Blusa Canelada Listrada",
-      "preco": "R\$ 79,90",
-      "imagem": "assets/images/blusa_canelada_listras.jpeg",
+      "title": "Blusa Canelada Listrada",
+      "price": 79.90,
+      "image": "assets/images/blusa_canelada_listras.jpeg",
     },
   ];
   int _currentIndex = 0;
@@ -39,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildHeader(),
+              CustomHeader(showBackButton: false, showLogo: true),
               _buildSearchBar(),
               const SizedBox(height: 8),
               _buildCategory(),
@@ -47,21 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: _buildBottomNavigation(),
-    );
-  }
-
-  //Bloco Header
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Image.asset('assets/images/Logo.png', width: 80),
-          Icon(Icons.shopping_cart_outlined),
-        ],
       ),
     );
   }
@@ -187,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(item["imagem"], fit: BoxFit.cover),
+            Image.asset(item["image"], fit: BoxFit.cover),
             Container(
               alignment: Alignment.bottomLeft,
               padding: const EdgeInsets.all(16),
@@ -202,8 +193,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item["titulo"], style: context.texts.labelLarge),
-                  Text(item["preco"], style: context.texts.labelSmall),
+                  Text(item["title"], style: context.texts.labelLarge),
+                  Text(
+                    currencyFormat.format(item["price"]),
+                    style: context.texts.labelSmall,
+                  ),
                   Text("COMPRAR >", style: context.texts.labelMedium),
                 ],
               ),
@@ -211,37 +205,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBottomNavigation() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 0,
-      selectedItemColor: context.colors.primary,
-      unselectedItemColor: context.colors.secondary,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: "Início",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.favorite_border),
-          label: "Favoritos",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.category_outlined),
-          label: "Categorias",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_cart_outlined),
-          label: "Carrinho",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: "Perfil",
-        ),
-      ],
     );
   }
 }

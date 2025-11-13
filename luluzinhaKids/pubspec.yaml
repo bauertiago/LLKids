@@ -74,6 +74,11 @@ flutter:
     - assets/images/categoria_bermudas.jpg
     - assets/images/categoria_vestidos.jpg
     - assets/images/categoria_praia.jpg
+    - assets/images/calca_saruel.jpg
+    - assets/images/camiseta.jpg
+    - assets/images/praia.jpg
+    - assets/images/short.jpg
+    - assets/images/vestido.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/models/product.dart';
 import 'package:luluzinhakids/screens/main_screen.dart';
+import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
@@ -62,12 +63,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       if (valorParcela >= parcelaMinima) {
         double total = comJuros ? valorParcela * parcelas : valorTotal;
         String tipo = comJuros ? "com juros" : "sem juros";
-        return "${currencyFormat.format(total)} em até ${parcelas}x $tipo";
+        return "${currencyFormat.format(total)} em até ${parcelas} x $tipo";
       }
     }
 
     // Se nenhuma opção for válida:
-    return "$currencyFormat.format(valorTotal) à vista";
+    return "${currencyFormat.format(valorTotal)} à vista";
   }
 
   @override
@@ -227,7 +228,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          CartService().addToCart(widget.product);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const MainScreen(initialIndex: 3),
+            ),
+          );
+        },
         child: Text("Adicionar ao Carrinho", style: context.texts.labelLarge),
       ),
     );

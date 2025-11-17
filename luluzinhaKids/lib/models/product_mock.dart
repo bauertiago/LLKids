@@ -35,7 +35,7 @@ final Map<String, List<Product>> mockProduct = {
       nameImage: "assets/images/calca_saruel.jpg",
     ),
     Product(
-      id: 3,
+      id: 4,
       name: "Calça Jeans",
       costPrice: 99.90,
       salePrice: 119.90,
@@ -47,7 +47,7 @@ final Map<String, List<Product>> mockProduct = {
   ],
   "Camisetas": [
     Product(
-      id: 4,
+      id: 5,
       name: "Camisetas Adidas",
       costPrice: 49.90,
       salePrice: 69.90,
@@ -57,7 +57,7 @@ final Map<String, List<Product>> mockProduct = {
       nameImage: "assets/images/categoria_camisetas.jpg",
     ),
     Product(
-      id: 5,
+      id: 6,
       name: "Camiseta Estampada",
       costPrice: 39.90,
       salePrice: 59.90,
@@ -69,7 +69,7 @@ final Map<String, List<Product>> mockProduct = {
   ],
   "Shorts": [
     Product(
-      id: 6,
+      id: 7,
       name: "Shorts Jeans",
       costPrice: 59.90,
       salePrice: 79.90,
@@ -79,7 +79,7 @@ final Map<String, List<Product>> mockProduct = {
       nameImage: "assets/images/categoria_shorts.jpg",
     ),
     Product(
-      id: 7,
+      id: 8,
       name: "Shorts de Algodão",
       costPrice: 49.90,
       salePrice: 99.90,
@@ -91,7 +91,7 @@ final Map<String, List<Product>> mockProduct = {
   ],
   "Vestidos": [
     Product(
-      id: 8,
+      id: 9,
       name: "Vestido Rendado",
       costPrice: 89.90,
       salePrice: 129.90,
@@ -101,7 +101,7 @@ final Map<String, List<Product>> mockProduct = {
       nameImage: "assets/images/categoria_vestidos.jpg",
     ),
     Product(
-      id: 9,
+      id: 10,
       name: "Vestido Bordô",
       costPrice: 79.90,
       salePrice: 119.90,
@@ -113,7 +113,7 @@ final Map<String, List<Product>> mockProduct = {
   ],
   "Praia": [
     Product(
-      id: 10,
+      id: 11,
       name: "Maiô de Bolinhas",
       costPrice: 59.90,
       salePrice: 89.90,
@@ -123,7 +123,7 @@ final Map<String, List<Product>> mockProduct = {
       nameImage: "assets/images/categoria_praia.jpg",
     ),
     Product(
-      id: 11,
+      id: 12,
       name: "Short de Banho",
       costPrice: 69.90,
       salePrice: 99.90,

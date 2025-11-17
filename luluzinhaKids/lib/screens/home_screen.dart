@@ -177,44 +177,55 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProductCard(Product item) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ProductDetailScreen(product: item)),
-        );
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(item.nameImage, fit: BoxFit.cover),
-            Container(
-              alignment: Alignment.bottomLeft,
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [Colors.black54, Colors.transparent],
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.name, style: context.texts.labelLarge),
-                  Text(
-                    currencyFormat.format(item.salePrice),
-                    style: context.texts.labelSmall,
-                  ),
-                  Text("COMPRAR >", style: context.texts.labelMedium),
-                ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(item.nameImage, fit: BoxFit.cover),
+          Container(
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Colors.black54, Colors.transparent],
               ),
             ),
-          ],
-        ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(item.name, style: context.texts.labelLarge),
+                Text(
+                  currencyFormat.format(item.salePrice),
+                  style: context.texts.labelSmall,
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductDetailScreen(product: item),
+                      ),
+                    );
+                  },
+
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("COMPRAR", style: context.texts.labelMedium),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

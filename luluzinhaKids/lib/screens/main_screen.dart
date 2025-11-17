@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/screens/cart_screen.dart';
-import 'package:luluzinhakids/screens/favoties_screen.dart';
+import 'package:luluzinhakids/screens/favorites_screen.dart';
 import 'package:luluzinhakids/screens/profile_screen.dart';
 
 // importe suas telas reais aqui
 import 'home_screen.dart';
-import 'category_screen.dart';
+import 'categoriesScreens/category_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    FavoritiesScreen(),
+    FavoritesScreen(),
     CategoryScreen(),
     CartScreen(),
     ProfileScreen(),
@@ -35,7 +35,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
+    setState(() {
+      _selectedIndex = index;
+    });
+    if (index == 1) {
+      FavoritesScreen.refresh?.call();
+    }
   }
 
   @override

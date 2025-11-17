@@ -91,9 +91,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
+        onTap: () async {
           final products = productService.getProductsByCategory(categoryName);
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder:
@@ -103,6 +103,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   ),
             ),
           );
+          setState(() {});
         },
         child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 4, top: 4, bottom: 4),

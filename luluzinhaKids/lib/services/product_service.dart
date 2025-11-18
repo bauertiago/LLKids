@@ -1,5 +1,5 @@
-import 'package:luluzinhakids/models/product.dart';
-import 'package:luluzinhakids/models/product_mock.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModels/product_mock.dart';
 
 class ProductService {
   List<Product> getHighlights() {

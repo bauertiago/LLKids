@@ -1,4 +1,4 @@
-import 'package:luluzinhakids/models/product.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
 
 final Map<String, List<Product>> mockProduct = {
   "Conjuntos": [
@@ -11,6 +11,7 @@ final Map<String, List<Product>> mockProduct = {
           "Conjunto Tricot Infantil Feminino Luluzinha Kids Blusa e Calça em Tricot Macio e Confortável para o Dia a Dia das Crianças.",
       category: "Sets",
       nameImage: "assets/images/conjunto_tricot.jpeg",
+      availableSizes: ["04", "06", "08"],
     ),
     Product(
       id: 2,
@@ -21,6 +22,7 @@ final Map<String, List<Product>> mockProduct = {
           "Conjunto Moletom Infantil Feminino Luluzinha Kids Blusa e Calça em Moletom Quentinho e Estiloso para o Dia a Dia das Crianças.",
       category: "Sets",
       nameImage: "assets/images/moletom_beje.jpeg",
+      availableSizes: ["04", "06", "08"],
     ),
   ],
   "Calças": [
@@ -33,6 +35,7 @@ final Map<String, List<Product>> mockProduct = {
           "Calça Saruel Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Pants",
       nameImage: "assets/images/calca_saruel.jpg",
+      availableSizes: ["04", "06", "08", "10", "12"],
     ),
     Product(
       id: 4,
@@ -43,6 +46,7 @@ final Map<String, List<Product>> mockProduct = {
           "Calça Jeans Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Pants",
       nameImage: "assets/images/categoria_calcas.jpg",
+      availableSizes: ["02", "04", "06", "08"],
     ),
   ],
   "Camisetas": [
@@ -55,6 +59,7 @@ final Map<String, List<Product>> mockProduct = {
           "Camitas adidas Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Camisetas",
       nameImage: "assets/images/categoria_camisetas.jpg",
+      availableSizes: ["08", "10", "12", "14"],
     ),
     Product(
       id: 6,
@@ -65,6 +70,7 @@ final Map<String, List<Product>> mockProduct = {
           "Camiseta Estampada Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Camisetas",
       nameImage: "assets/images/camiseta.jpg",
+      availableSizes: ["04", "05", "06"],
     ),
   ],
   "Shorts": [
@@ -77,6 +83,7 @@ final Map<String, List<Product>> mockProduct = {
           "Shorts Jeans Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Shorts",
       nameImage: "assets/images/categoria_shorts.jpg",
+      availableSizes: ["04", "06", "08"],
     ),
     Product(
       id: 8,
@@ -87,6 +94,7 @@ final Map<String, List<Product>> mockProduct = {
           "Shorts de Algodão Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Shorts",
       nameImage: "assets/images/short.jpg",
+      availableSizes: ["06", "08", "10"],
     ),
   ],
   "Vestidos": [
@@ -99,6 +107,7 @@ final Map<String, List<Product>> mockProduct = {
           "Vestido Rendado Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Vestidos",
       nameImage: "assets/images/categoria_vestidos.jpg",
+      availableSizes: ["04", "06"],
     ),
     Product(
       id: 10,
@@ -109,6 +118,7 @@ final Map<String, List<Product>> mockProduct = {
           "Vestido Bordô Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Vestidos",
       nameImage: "assets/images/vestido.jpg",
+      availableSizes: ["06", "08"],
     ),
   ],
   "Praia": [
@@ -121,6 +131,7 @@ final Map<String, List<Product>> mockProduct = {
           "Maiô de Bolinhas Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Praia",
       nameImage: "assets/images/categoria_praia.jpg",
+      availableSizes: ["04", "06", "08", "10"],
     ),
     Product(
       id: 12,
@@ -131,6 +142,7 @@ final Map<String, List<Product>> mockProduct = {
           "Short de BAnho Infantil Luluzinha Kids, Confortável e Estilosa, Perfeita para o Dia a Dia das Crianças.",
       category: "Praia",
       nameImage: "assets/images/praia.jpg",
+      availableSizes: ["08", "10", "12", "14"],
     ),
   ],
 };

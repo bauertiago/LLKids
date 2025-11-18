@@ -6,8 +6,11 @@ class Product {
   final String description;
   final String category;
   final String nameImage;
+  int quantity;
+  String? selectedSize;
+  final List<String> availableSizes;
 
-  const Product({
+  Product({
     required this.id,
     required this.name,
     required this.costPrice,
@@ -15,6 +18,9 @@ class Product {
     required this.description,
     required this.category,
     required this.nameImage,
+    this.quantity = 1,
+    this.selectedSize,
+    this.availableSizes = const [],
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -40,6 +46,11 @@ class Product {
       description: json["description"] ?? "",
       category: json["category"] ?? "",
       nameImage: json["nameImage"] ?? "",
+      availableSizes:
+          json["availableSizes"] != null
+              ? List<String>.from(json["availableSizes"])
+              : [],
+      selectedSize: json["selectedSize"],
     );
   }
 }

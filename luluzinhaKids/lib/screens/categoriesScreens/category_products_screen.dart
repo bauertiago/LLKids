@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/product.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 
 import '../../widgets/custom_header.dart';

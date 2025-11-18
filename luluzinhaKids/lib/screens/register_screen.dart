@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/screens/login_screen.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
 class Register extends StatefulWidget {
@@ -206,7 +207,7 @@ class _Register extends State<Register> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => Register(),
+                                      builder: (_) => LoginScreen(),
                                     ),
                                   );
                                 },

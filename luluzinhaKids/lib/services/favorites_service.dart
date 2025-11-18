@@ -1,4 +1,4 @@
-import 'package:luluzinhakids/models/product.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
 
 class FavoritesService {
   static final FavoritesService _instance = FavoritesService._internal();

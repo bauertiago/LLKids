@@ -1,8 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/product.dart';
-import 'package:luluzinhakids/models/product_mock.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModels/product_mock.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/main_screen.dart';
+
 class CustomHeader extends StatelessWidget {
   final VoidCallback? onBack;
   final VoidCallback? onCartTap;
@@ -38,7 +40,16 @@ class CustomHeader extends StatelessWidget {
             ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: onCartTap,
+            onPressed:
+                onCartTap ??
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MainScreen(initialIndex: 3),
+                    ),
+                  );
+                },
           ),
         ],
       ),

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/product.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/main_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
@@ -27,6 +27,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     locale: 'pt_BR',
     symbol: 'R\$',
   );
+
+  String? selectedSize;
 
   double calcularParcelaComJuros(
     double valorTotal,
@@ -63,7 +65,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       if (valorParcela >= parcelaMinima) {
         double total = comJuros ? valorParcela * parcelas : valorTotal;
         String tipo = comJuros ? "com juros" : "sem juros";
-        return "${currencyFormat.format(total)} em até ${parcelas} x $tipo";
+        return "${currencyFormat.format(total)} em até $parcelas x $tipo";
       }
     }
 
@@ -86,7 +88,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               const SizedBox(height: 8),
               _buildInfo(),
               const SizedBox(height: 12),
-              _buildSizes(),
+              _buildSizes(widget.product),
               const SizedBox(height: 12),
               _buildDescription(),
               const SizedBox(height: 16),
@@ -145,8 +147,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildSizes() {
-    final sizes = [
+  Widget _buildSizes(Product product) {
+    final List<String> allSizes = [
       "02",
       "03",
       "04",
@@ -170,20 +172,56 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
+              crossAxisCount: 5,
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               childAspectRatio: 2,
             ),
-            itemCount: sizes.length,
+            itemCount: allSizes.length,
             itemBuilder: (_, i) {
-              return Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDDE1F6),
-                  borderRadius: BorderRadius.circular(8),
+              final size = allSizes[i];
+              final bool isAvailable = product.availableSizes.contains(size);
+              final bool isSelected = selectedSize == size;
+
+              Color bgColor;
+              Color textColor;
+
+              if (isSelected) {
+                bgColor = context.colors.secondary;
+                textColor = Colors.white;
+              } else if (isAvailable) {
+                bgColor = const Color(0xFFDDE1F6);
+                textColor = Colors.black87;
+              } else {
+                bgColor = Colors.grey.shade300;
+                textColor = Colors.grey;
+              }
+
+              return GestureDetector(
+                onTap:
+                    isAvailable
+                        ? () {
+                          setState(() => selectedSize = size);
+                        }
+                        : null,
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color:
+                          isSelected
+                              ? context.colors.secondary
+                              : Colors.transparent,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Text(
+                    size,
+                    style: context.texts.bodyMedium?.copyWith(color: textColor),
+                  ),
                 ),
-                child: Text(sizes[i], style: context.texts.bodyMedium),
               );
             },
           ),
@@ -198,20 +236,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Conforto e estilo em um só look! Conjunto em tricot macio com blusa de manga longa e calça jogger...",
-            style: context.texts.bodySmall,
-          ),
+          Text(widget.product.description, style: context.texts.bodySmall),
           const SizedBox(height: 8),
-          Text(
-            "Composição: Tricot macio e leve",
-            style: context.texts.bodySmall,
-          ),
-          Text("Cor: Cinza com off white", style: context.texts.bodySmall),
-          Text(
-            "Modelagem: Confortável e ajustada",
-            style: context.texts.bodySmall,
-          ),
         ],
       ),
     );
@@ -223,13 +249,38 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: context.colors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
         onPressed: () {
-          CartService().addToCart(widget.product);
+          if (selectedSize == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Por favor, selecione um tamanho antes de adicionar ao carrinho.",
+                  style: context.texts.bodyMedium,
+                ),
+              ),
+            );
+            return;
+          }
+
+          final productToCart = Product(
+            id: widget.product.id,
+            name: widget.product.name,
+            costPrice: widget.product.costPrice,
+            salePrice: widget.product.salePrice,
+            description: widget.product.description,
+            category: widget.product.category,
+            nameImage: widget.product.nameImage,
+            availableSizes: widget.product.availableSizes,
+            selectedSize: selectedSize,
+            quantity: 1,
+          );
+
+          CartService().addToCart(productToCart);
 
           Navigator.push(
             context,

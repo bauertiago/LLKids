@@ -288,12 +288,15 @@ class _CartScreenState extends State<CartScreen> {
 
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     onPressed: () {
                       setState(() => isEditingAddress = true);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colors.secondary,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: context.colors.secondary,
+                        width: 1,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -301,7 +304,9 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     child: Text(
                       "Alterar Endereço de Entrega",
-                      style: context.texts.labelMedium,
+                      style: context.texts.titleMedium?.copyWith(
+                        color: context.colors.secondary,
+                      ),
                     ),
                   ),
                 ),
@@ -390,7 +395,7 @@ class _CartScreenState extends State<CartScreen> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: context.colors.primary,
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -406,50 +411,57 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildBottomCartButtons() {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PaymentScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.colors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const PaymentScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  "Finalizar Compra",
+                  style: context.texts.labelLarge,
                 ),
               ),
-              child: Text("Finalizar Compra", style: context.texts.labelLarge),
             ),
           ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const MainScreen(initialIndex: 0),
+          const SizedBox(width: 8),
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MainScreen(initialIndex: 0),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: context.colors.secondary,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: context.colors.secondary,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              child: Text(
-                "Continuar Comprando",
-                style: context.texts.labelLarge,
+                child: Text(
+                  "Continuar Compra",
+                  style: context.texts.labelLarge,
+                ),
               ),
             ),
           ),

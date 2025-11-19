@@ -179,7 +179,7 @@ class _Register extends State<Register> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.colors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

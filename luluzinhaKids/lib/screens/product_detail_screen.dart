@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
@@ -6,7 +7,7 @@ import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/main_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-import 'package:luluzinhakids/widgets/custom_input.dart';
+import 'package:luluzinhakids/widgets/custom_search_bar.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -82,7 +83,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomHeader(showBackButton: true, showLogo: true),
-              _buildSearchBar(),
+              CustomSearchBar(),
               const SizedBox(height: 8),
               _buildImage(),
               const SizedBox(height: 8),
@@ -99,16 +100,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
       ),
       bottomNavigationBar: _buildBottomNavigation(),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: CustomInput(
-        hintText: "Buscar Produtos...",
-        prefixIcon: Icons.search,
-      ),
     );
   }
 

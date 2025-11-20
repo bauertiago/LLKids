@@ -5,8 +5,7 @@ import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-
-import '../widgets/custom_input.dart';
+import 'package:luluzinhakids/widgets/custom_search_bar.dart';
 
 class FavoritesScreen extends StatefulWidget {
   static VoidCallback? refresh;
@@ -49,7 +48,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomHeader(showBackButton: true, showLogo: true),
-            _buildSearchBar(),
+            CustomSearchBar(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Text("Favoritos", style: context.texts.titleLarge),
@@ -62,16 +61,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: CustomInput(
-        hintText: "Buscar Produtos...",
-        prefixIcon: Icons.search,
       ),
     );
   }

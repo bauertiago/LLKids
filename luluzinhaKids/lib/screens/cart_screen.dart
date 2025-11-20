@@ -313,7 +313,6 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
 
-          // Campos de edição animados
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: isEditingAddress ? _buildAddressForm() : const SizedBox(),

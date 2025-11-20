@@ -1,12 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/models/productModels/product_mock.dart';
+import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-import 'package:luluzinhakids/widgets/custom_input.dart';
-import 'package:intl/intl.dart';
+import 'package:luluzinhakids/widgets/custom_search_bar.dart';
 
 import '../services/product_service.dart';
 import 'categoriesScreens/category_products_screen.dart';
@@ -44,24 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomHeader(showBackButton: false, showLogo: true),
-              _buildSearchBar(),
+              CustomSearchBar(),
               const SizedBox(height: 8),
               _buildCategory(),
               _buildHighlight(),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  //Bloco Pesquizar
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: CustomInput(
-        hintText: "Buscar Produtos...",
-        prefixIcon: Icons.search,
       ),
     );
   }

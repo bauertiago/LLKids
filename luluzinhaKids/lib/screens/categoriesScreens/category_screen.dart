@@ -3,8 +3,7 @@ import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/screens/categoriesScreens/category_products_screen.dart';
 import 'package:luluzinhakids/services/product_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-
-import '../../widgets/custom_input.dart';
+import 'package:luluzinhakids/widgets/custom_search_bar.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -41,7 +40,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomHeader(showBackButton: true, showLogo: true),
-              _buildSearchBar(),
+              CustomSearchBar(),
               const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -52,16 +51,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: CustomInput(
-        hintText: "Buscar Produtos...",
-        prefixIcon: Icons.search,
       ),
     );
   }

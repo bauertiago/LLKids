@@ -4,7 +4,6 @@ import 'package:luluzinhakids/screens/cart_screen.dart';
 import 'package:luluzinhakids/screens/favorites_screen.dart';
 import 'package:luluzinhakids/screens/profile_screen.dart';
 
-// importe suas telas reais aqui
 import 'home_screen.dart';
 import 'categoriesScreens/category_screen.dart';
 

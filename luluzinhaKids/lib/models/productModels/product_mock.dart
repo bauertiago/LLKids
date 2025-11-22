@@ -52,7 +52,7 @@ final Map<String, List<Product>> mockProduct = {
   "Camisetas": [
     Product(
       id: 5,
-      name: "Camisetas Adidas",
+      name: "Camiseta Adidas",
       costPrice: 49.90,
       salePrice: 69.90,
       description:

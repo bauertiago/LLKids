@@ -59,4 +59,8 @@ class CartService {
       (sum, item) => sum + (item.salePrice * item.quantity),
     );
   }
+
+  void clearCart() {
+    _cart.clear();
+  }
 }

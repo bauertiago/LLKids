@@ -5,7 +5,8 @@ import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-import 'package:luluzinhakids/widgets/custom_search_bar.dart';
+
+import '../widgets/search_with_suggestions.dart';
 
 class FavoritesScreen extends StatefulWidget {
   static VoidCallback? refresh;
@@ -17,7 +18,7 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  final favoritesService = FavoritesService();
+  final _favoritesService = FavoritesService();
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final favorites = favoritesService.getFavorites();
+    final favorites = _favoritesService.getFavorites();
 
     return Scaffold(
       body: SafeArea(
@@ -48,7 +49,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomHeader(showBackButton: true, showLogo: true),
-            CustomSearchBar(),
+            SearchWithSuggestions(
+              onProductSelected: (product) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProductDetailScreen(product: product),
+                  ),
+                );
+              },
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Text("Favoritos", style: context.texts.titleLarge),
@@ -111,15 +121,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  favoritesService.toggleFavorite(item);
+                  _favoritesService.toggleFavorite(item);
                 });
               },
               child: Icon(
-                favoritesService.isFavorite(item)
+                _favoritesService.isFavorite(item)
                     ? Icons.favorite
                     : Icons.favorite_border,
                 color:
-                    favoritesService.isFavorite(item)
+                    _favoritesService.isFavorite(item)
                         ? Colors.red
                         : Colors.white,
                 size: 26,

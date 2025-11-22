@@ -7,7 +7,9 @@ import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/main_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-import 'package:luluzinhakids/widgets/custom_search_bar.dart';
+
+import '../services/product_service.dart';
+import '../widgets/search_with_suggestions.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -24,6 +26,7 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  final prodctService = ProductService();
   final NumberFormat currencyFormat = NumberFormat.currency(
     locale: 'pt_BR',
     symbol: 'R\$',
@@ -83,7 +86,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomHeader(showBackButton: true, showLogo: true),
-              CustomSearchBar(),
+              SearchWithSuggestions(
+                onProductSelected: (product) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailScreen(product: product),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 8),
               _buildImage(),
               const SizedBox(height: 8),

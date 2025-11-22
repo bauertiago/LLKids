@@ -6,7 +6,7 @@ import 'package:luluzinhakids/models/productModels/product_mock.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-import 'package:luluzinhakids/widgets/custom_search_bar.dart';
+import 'package:luluzinhakids/widgets/search_with_suggestions.dart';
 
 import '../services/product_service.dart';
 import 'categoriesScreens/category_products_screen.dart';
@@ -44,10 +44,23 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomHeader(showBackButton: false, showLogo: true),
-              CustomSearchBar(),
-              const SizedBox(height: 8),
-              _buildCategory(),
-              _buildHighlight(),
+              SearchWithSuggestions(
+                onProductSelected: (product) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailScreen(product: product),
+                    ),
+                  );
+                },
+              ),
+              Column(
+                children: [
+                  const SizedBox(height: 8),
+                  _buildCategory(),
+                  _buildHighlight(),
+                ],
+              ),
             ],
           ),
         ),

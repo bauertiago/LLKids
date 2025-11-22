@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
-import 'package:luluzinhakids/widgets/custom_search_bar.dart';
 
 import '../../widgets/custom_header.dart';
+import '../../widgets/search_with_suggestions.dart';
 import '../product_detail_screen.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     symbol: 'R\$',
   );
 
-  final favoritesService = FavoritesService();
+  final _favoritesService = FavoritesService();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,16 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomHeader(showBackButton: true, showLogo: true),
-            CustomSearchBar(),
+            SearchWithSuggestions(
+              onProductSelected: (product) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProductDetailScreen(product: product),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -92,15 +101,15 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  favoritesService.toggleFavorite(item);
+                  _favoritesService.toggleFavorite(item);
                 });
               },
               child: Icon(
-                favoritesService.isFavorite(item)
+                _favoritesService.isFavorite(item)
                     ? Icons.favorite
                     : Icons.favorite_border,
                 color:
-                    favoritesService.isFavorite(item)
+                    _favoritesService.isFavorite(item)
                         ? Colors.red
                         : Colors.white,
                 size: 26,

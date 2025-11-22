@@ -3,7 +3,9 @@ import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/screens/categoriesScreens/category_products_screen.dart';
 import 'package:luluzinhakids/services/product_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
-import 'package:luluzinhakids/widgets/custom_search_bar.dart';
+
+import '../../widgets/search_with_suggestions.dart';
+import '../product_detail_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -22,13 +24,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
     "Praia": "assets/images/categoria_praia.jpg",
   };
 
-  final productService = ProductService();
+  final _productService = ProductService();
   late List<String> allCategories;
 
   @override
   void initState() {
     super.initState();
-    allCategories = productService.getCategories();
+    allCategories = _productService.getCategories();
   }
 
   @override
@@ -40,7 +42,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomHeader(showBackButton: true, showLogo: true),
-              CustomSearchBar(),
+              SearchWithSuggestions(
+                onProductSelected: (product) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailScreen(product: product),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -81,7 +92,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () async {
-          final products = productService.getProductsByCategory(categoryName);
+          final products = _productService.getProductsByCategory(categoryName);
           await Navigator.push(
             context,
             MaterialPageRoute(

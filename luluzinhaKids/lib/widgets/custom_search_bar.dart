@@ -17,17 +17,11 @@ class CustomSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFDDE1F6),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: CustomInput(
-          hintText: hintText,
-          prefixIcon: Icons.search,
-          controller: controller,
-          onChanged: onChanged,
-        ),
+      child: CustomInput(
+        hintText: hintText,
+        prefixIcon: Icons.search,
+        controller: controller,
+        onChanged: onChanged,
       ),
     );
   }

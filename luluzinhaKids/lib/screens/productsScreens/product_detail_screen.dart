@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
-import 'package:luluzinhakids/screens/main_screen.dart';
+import 'package:luluzinhakids/screens/mainScreens/main_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
-import '../services/product_service.dart';
-import '../widgets/search_with_suggestions.dart';
+import '../../services/product_service.dart';
+import '../../widgets/search_with_suggestions.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -261,9 +261,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           if (selectedSize == null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
+                backgroundColor: context.colors.secondary,
                 content: Text(
                   "Por favor, selecione um tamanho antes de adicionar ao carrinho.",
-                  style: context.texts.bodyMedium,
                 ),
               ),
             );

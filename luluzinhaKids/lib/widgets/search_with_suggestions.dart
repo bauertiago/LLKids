@@ -36,7 +36,10 @@ class _SearchWithSuggestionsState extends State<SearchWithSuggestions> {
           onChanged: _onSearchChanged,
         ),
 
-        if (_suggestions.isNotEmpty) _buildSuggestionList(),
+        if (_suggestions.isNotEmpty)
+          _buildSuggestionList()
+        else if (_searchController.text.isNotEmpty)
+          _buildNoResultsMessage(),
       ],
     );
   }
@@ -67,6 +70,31 @@ class _SearchWithSuggestionsState extends State<SearchWithSuggestions> {
                 },
               );
             }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildNoResultsMessage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Text(
+          "Nenhum produto encontrado.",
+          style: TextStyle(color: Colors.black54),
+        ),
       ),
     );
   }

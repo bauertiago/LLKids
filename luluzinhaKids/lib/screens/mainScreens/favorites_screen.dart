@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
-import 'package:luluzinhakids/screens/product_detail_screen.dart';
+import 'package:luluzinhakids/screens/productsScreens/product_detail_screen.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
-import '../widgets/search_with_suggestions.dart';
+import '../../widgets/search_with_suggestions.dart';
 
 class FavoritesScreen extends StatefulWidget {
   static VoidCallback? refresh;
@@ -45,8 +45,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
             CustomHeader(showBackButton: true, showLogo: true),
             SearchWithSuggestions(

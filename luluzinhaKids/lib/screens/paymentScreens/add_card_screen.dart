@@ -23,6 +23,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
   bool isValid = false;
 
+  bool nameError = false;
+  bool cardNumberError = false;
+  bool expError = false;
+  bool cvvError = false;
+
   @override
   void initState() {
     super.initState();
@@ -76,8 +81,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     Text("Nome", style: context.texts.bodyLarge),
                     const SizedBox(height: 4),
                     CustomInput(
+                      label: "Nome como está no cartão",
                       controller: _nameController,
-                      hintText: "Nome como está no cartão",
+                      hintText: "Digite seu Nome",
+                      requiredField: true,
+                      hasError: nameError,
                       prefixIcon: Icons.person,
                     ),
 
@@ -85,6 +93,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     Text("Número do Cartão", style: context.texts.bodyLarge),
                     const SizedBox(height: 4),
                     CustomInput(
+                      label: "Número do Cartão",
+                      requiredField: true,
+                      hasError: cardNumberError,
                       controller: _cardNumberController,
                       hintText: "0000 0000 0000 0000",
                       prefixIcon: Icons.credit_card,
@@ -108,6 +119,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
                               ),
                               const SizedBox(height: 4),
                               CustomInput(
+                                label: "Data de Vencimento",
+                                requiredField: true,
+                                hasError: expError,
                                 controller: _expController,
                                 hintText: "MM / AAAA",
                                 prefixIcon: Icons.date_range,
@@ -129,6 +143,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
                               Text("CVV", style: context.texts.bodyLarge),
                               const SizedBox(height: 4),
                               CustomInput(
+                                label: "CVV",
+                                requiredField: true,
+                                hasError: cvvError,
                                 controller: _cvvController,
                                 hintText: "XXX",
                                 prefixIcon: Icons.lock,
@@ -149,16 +166,17 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: isValid ? () {} : null,
+                        onPressed: isValid ? _validateFieldsOnSubmit : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: context.colors.primary,
                           disabledBackgroundColor: context.colors.primary
                               .withValues(alpha: 0.2),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
+
                         child: Text(
                           "Adicionar Cartão",
                           style: context.texts.labelLarge,
@@ -174,6 +192,31 @@ class _AddCardScreenState extends State<AddCardScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _validateFieldsOnSubmit() {
+    final name = _nameController.text.trim();
+    final cardNumber = _cardNumberController.text.trim().replaceAll(" ", "");
+    final exp = _expController.text.trim();
+    final cvv = _cvvController.text.trim();
+
+    setState(() {
+      nameError = name.isEmpty;
+      cardNumberError = cardNumber.length != 16;
+      expError = !RegExp(r'^(0[1-9]|1[0-2])\/\d{4}$').hasMatch(exp);
+      cvvError = cvv.length != 3;
+    });
+
+    if (nameError || cardNumberError || expError || cvvError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Preencha todos os campos corretamente.")),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Cartão adicionado com sucesso!")),
     );
   }
 }

@@ -4,8 +4,8 @@ import 'package:luluzinhakids/services/customer_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
-import '../models/customerModels/customer_model.dart';
-import 'login_screen.dart';
+import '../../models/customerModels/customer_model.dart';
+import '../accessScreens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -354,6 +354,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _passwordField(String label, bool visible, VoidCallback toggle) {
     return CustomInput(
+      label: label,
+      requiredField: true,
       hintText: label,
       prefixIcon: Icons.lock_outline,
       obscureText: !visible,

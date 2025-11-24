@@ -5,7 +5,7 @@ import 'package:luluzinhakids/services/product_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
 import '../../widgets/search_with_suggestions.dart';
-import '../product_detail_screen.dart';
+import '../productsScreens/product_detail_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});

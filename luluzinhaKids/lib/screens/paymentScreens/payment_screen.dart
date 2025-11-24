@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/screens/payment/payment_slip_screen.dart';
-import 'package:luluzinhakids/screens/payment/pix_payment_screen.dart';
+import 'package:luluzinhakids/screens/paymentScreens/payment_slip_screen.dart';
+import 'package:luluzinhakids/screens/paymentScreens/pix_payment_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
 import '../../widgets/installment_selector.dart';
 import 'add_card_screen.dart';
-import '../main_screen.dart';
+import '../mainScreens/main_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});

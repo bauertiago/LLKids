@@ -6,7 +6,7 @@ import 'package:luluzinhakids/services/favorites_service.dart';
 
 import '../../widgets/custom_header.dart';
 import '../../widgets/search_with_suggestions.dart';
-import '../product_detail_screen.dart';
+import '../productsScreens/product_detail_screen.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final String title;

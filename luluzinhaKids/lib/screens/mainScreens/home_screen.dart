@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/models/productModels/product_mock.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
-import 'package:luluzinhakids/screens/product_detail_screen.dart';
+import 'package:luluzinhakids/screens/productsScreens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/search_with_suggestions.dart';
 
-import '../services/product_service.dart';
-import 'categoriesScreens/category_products_screen.dart';
+import '../../services/product_service.dart';
+import '../categoriesScreens/category_products_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

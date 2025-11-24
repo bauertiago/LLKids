@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../screens/main_screen.dart';
+import '../screens/mainScreens/main_screen.dart';
 
 class CustomHeader extends StatelessWidget {
   final VoidCallback? onBack;

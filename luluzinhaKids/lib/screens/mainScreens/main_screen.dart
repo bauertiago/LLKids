@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/screens/cart_screen.dart';
-import 'package:luluzinhakids/screens/favorites_screen.dart';
-import 'package:luluzinhakids/screens/profile_screen.dart';
+import 'package:luluzinhakids/screens/mainScreens/cart_screen.dart';
+import 'package:luluzinhakids/screens/mainScreens/favorites_screen.dart';
+import 'package:luluzinhakids/screens/mainScreens/profile_screen.dart';
 
 import 'home_screen.dart';
-import 'categoriesScreens/category_screen.dart';
+import 'category_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;

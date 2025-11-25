@@ -1,5 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:luluzinhakids/screens/login_screen.dart';
+import 'package:luluzinhakids/screens/accessScreens/login_screen.dart';
+import 'package:luluzinhakids/screens/mainScreens/home_screen.dart';
+import 'package:luluzinhakids/services/firebase_auth_service.dart';
+
+import 'firebase_options.dart';
 
 class BrandColors {
   final Color primaryColor;
@@ -23,6 +28,9 @@ final brand = BrandColors(
 );
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MyApp());
 }
 
@@ -114,5 +122,20 @@ class MyApp extends StatelessWidget {
 
       home: LoginScreen(),
     );
+  }
+}
+
+class Initializer extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _Initializer();
+}
+
+class _Initializer extends State<Initializer> {
+  final FirebaseAuthService firebaseAuth = FirebaseAuthService();
+  @override
+  Widget build(BuildContext context) {
+    return firebaseAuth.firebaseAuth.currentUser != null
+        ? HomeScreen()
+        : LoginScreen();
   }
 }

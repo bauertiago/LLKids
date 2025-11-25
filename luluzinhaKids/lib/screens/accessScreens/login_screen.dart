@@ -1,8 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/screens/main_screen.dart';
-import 'package:luluzinhakids/screens/register_screen.dart';
+import 'package:luluzinhakids/screens/accessScreens/verify_email_screen.dart';
+import 'package:luluzinhakids/screens/mainScreens/main_screen.dart';
+import 'package:luluzinhakids/screens/accessScreens/register_screen.dart';
+import 'package:luluzinhakids/services/firebase_auth_service.dart';
+import 'package:luluzinhakids/utils/email_validator.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,7 +17,88 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool loading = false;
   bool isVisible = false;
+
+  bool emailError = false;
+  bool passWordError = false;
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  FirebaseAuthService authService = FirebaseAuthService();
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(backgroundColor: context.colors.secondary, content: Text(msg)),
+    );
+  }
+
+  Future<void> doLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    setState(() {
+      emailError = email.isEmpty;
+      passWordError = password.isEmpty;
+    });
+
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage("Preencha todos os campos");
+      return;
+    }
+
+    if (!EmailValidator.isValidEmail(email)) {
+      _showMessage("Digite um e-mail válido.");
+      return;
+    }
+
+    if (password.length < 8) {
+      _showMessage("A senha deve ter pelo menos 8 caracteres.");
+      setState(() => passWordError = true);
+      return;
+    }
+
+    try {
+      setState(() => loading = true);
+
+      final credential = await authService.makeLogin(email, password);
+      if (!credential.user!.emailVerified) {
+        _showMessage("Verifique seu e-mail antes de entrar");
+
+        authService.logout();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => VerifyEmailScreen()),
+        );
+        return;
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      const invalidCodes = [
+        "user-not-found",
+        "wrong-password",
+        "invalid-credential",
+      ];
+      if (invalidCodes.contains(e.code)) {
+        _showMessage("Credenciais inválidas. Verifique e tente novamente.");
+        setState(() {
+          emailError = true;
+          passWordError = true;
+        });
+      } else if (e.code == "network-request-failed") {
+        _showMessage("Falha na conexão. Verifique sua internet.");
+      } else {
+        _showMessage("Erro inesperado. Tente Novamente.");
+      }
+    } finally {
+      setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Center(
                 child: Image.asset(
                   'assets/images/Logo.png',
@@ -33,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 4),
               Text(
                 "Bem Vindo!",
                 textAlign: TextAlign.center,
@@ -46,16 +131,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: context.texts.bodyMedium,
               ),
 
-              const SizedBox(height: 32),
-              const CustomInput(
-                hintText: "E-mail",
+              const SizedBox(height: 24),
+              CustomInput(
+                label: "E-mail",
+                requiredField: true,
+                hintText: "Digite seu e-mail",
+                hasError: emailError,
                 prefixIcon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
+                controller: emailController,
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               CustomInput(
-                hintText: "Senha",
+                label: "Senha",
+                hintText: "Digite sua senha",
+                controller: passwordController,
+                requiredField: true,
+                hasError: passWordError,
                 prefixIcon: Icons.password,
                 obscureText: !isVisible,
                 suffixIcon: IconButton(
@@ -72,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.colors.primary,
@@ -81,23 +174,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => MainScreen()),
-                  );
-                },
+                onPressed: doLogin,
                 child: Text("Entrar", style: context.texts.labelLarge),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 4),
+              Text(
+                "Campos com * são obrigatórios",
+                textAlign: TextAlign.right,
+                style: context.texts.bodySmall?.copyWith(color: Colors.red),
+              ),
+
+              const SizedBox(height: 8),
               Text(
                 "ou",
                 textAlign: TextAlign.center,
                 style: context.texts.bodyMedium,
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(

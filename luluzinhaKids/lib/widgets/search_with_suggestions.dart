@@ -17,14 +17,11 @@ class _SearchWithSuggestionsState extends State<SearchWithSuggestions> {
   final _productService = ProductService();
   List<Product> _suggestions = [];
 
-  void _onSearchChanged(String value) {
-    setState(() {
-      if (value.isEmpty) {
-        _suggestions = [];
-      } else {
-        _suggestions = _productService.searchProducts(value);
-      }
-    });
+  void _onSearchChanged(String value) async {
+    if (value.isEmpty) return setState(() => _suggestions = []);
+
+    final result = await _productService.searchProducts(value);
+    setState(() => _suggestions = result);
   }
 
   @override

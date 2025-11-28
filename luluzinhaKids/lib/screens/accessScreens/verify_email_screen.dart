@@ -22,6 +22,23 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Timer? timer;
 
   @override
+  void initState() {
+    super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 3), (_) async {
+      await auth.currentUser?.reload();
+      if (auth.currentUser?.emailVerified ?? false) {
+        timer?.cancel();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 0)),
+        );
+      }
+      checkVerification(auto: true);
+    });
+  }
+
+  @override
   void dispose() {
     timer?.cancel();
     super.dispose();

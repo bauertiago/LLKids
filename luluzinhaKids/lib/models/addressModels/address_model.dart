@@ -62,6 +62,6 @@ class Address {
 
   @override
   String toString() {
-    return "$street, $number, $district, $city - $state, $zipcode";
+    return "$street, Nº $number\n$district - $city/$state";
   }
 }

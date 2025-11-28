@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/customerModels/customer_model.dart';
-import '../models/customerModels/customer_mock.dart';
 
 class CustomerService {
   static final CustomerService _instance = CustomerService._internal();
@@ -7,21 +9,40 @@ class CustomerService {
 
   CustomerService._internal();
 
-  Customer _currentCustomer = mockCustomer.first;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Customer getCustomer() => _currentCustomer;
+  Customer? _currentCustomer;
 
-  void updateCustomer(Customer customer) {
-    _currentCustomer = customer;
+  Future<Customer?> loadCustomer() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+
+    final doc = await _firestore.collection("users").doc(user.uid).get();
+    if (!doc.exists) return null;
+
+    _currentCustomer = Customer.fromMap(doc.data()!, doc.id);
+    return _currentCustomer;
   }
 
-  void updateImage(String url) {
-    _currentCustomer = Customer(
-      id: _currentCustomer.id,
-      name: _currentCustomer.name,
-      email: _currentCustomer.email,
-      phoneNumber: _currentCustomer.phoneNumber,
-      imageUrl: url,
-    );
+  Customer? get currentCustomer => _currentCustomer;
+
+  Future<void> updateCustomer(Customer updated) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    await _firestore.collection("users").doc(user.uid).update(updated.toMap());
+    _currentCustomer = updated;
+  }
+
+  Future<void> updateImage(String imageUrl) async {
+    final user = _auth.currentUser;
+    if (user == null || _currentCustomer == null) return;
+
+    _currentCustomer = _currentCustomer!.copyWith(imageUrl: imageUrl);
+
+    await _firestore.collection("users").doc(user.uid).update({
+      "imageUrl": imageUrl,
+    });
   }
 }

@@ -1,33 +1,55 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
-import 'package:luluzinhakids/models/productModels/product_mock.dart';
 
 class ProductService {
-  static final ProductService _instance = ProductService._internal();
-  factory ProductService() => _instance;
-  ProductService._internal();
+  final _db = FirebaseFirestore.instance;
 
-  List<Product> getHighlights() {
-    final allProducts = mockProduct.values.expand((p) => p).toList();
-
-    allProducts.sort((a, b) => a.salePrice.compareTo(b.salePrice));
-
-    return allProducts.take(3).toList();
-  }
-
-  List<Product> getProductsByCategory(String categoryName) {
-    return mockProduct[categoryName] ?? [];
-  }
-
-  List<String> getCategories() {
-    return mockProduct.keys.toList();
-  }
-
-  List<Product> searchProducts(String query) {
+  Future<List<Product>> getAllProducts() async {
     final results =
-        mockProduct.values
-            .expand((list) => list)
-            .where((p) => p.name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-    return results;
+        await _db
+            .collection("products")
+            .orderBy("createdAt", descending: true)
+            .get();
+    return results.docs.map((e) => Product.fromMap(e)).toList();
+  }
+
+  Future<List<Product>> getLatestHighlights() async {
+    final results =
+        await _db
+            .collection("products")
+            .orderBy("createdAt", descending: true)
+            .limit(3)
+            .get();
+
+    return results.docs.map((e) => Product.fromMap(e)).toList();
+  }
+
+  Future<List<Product>> getProductsByCategory(String categoryName) async {
+    final results =
+        await _db
+            .collection("products")
+            .where("category", isEqualTo: categoryName)
+            .get();
+
+    return results.docs.map((e) => Product.fromMap(e)).toList();
+  }
+
+  Future<List<String>> getCategories() async {
+    final results = await _db.collection("products").get();
+
+    return results.docs.map((e) => e["category"] as String).toSet().toList();
+  }
+
+  Future<List<Product>> searchProducts(String text) async {
+    if (text.isEmpty) {
+      return [];
+    }
+    final results =
+        await _db
+            .collection("products")
+            .where("searchKeywords", arrayContains: text.toLowerCase())
+            .get();
+
+    return results.docs.map((e) => Product.fromMap(e)).toList();
   }
 }

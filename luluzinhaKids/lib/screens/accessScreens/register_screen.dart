@@ -71,14 +71,15 @@ class _Register extends State<Register> {
 
       final credential = await firebaseUtil.register(email, password);
 
-      await credential.user!.sendEmailVerification();
-
       await firebaseUtil.saveUserData(credential.user!.uid, {
         "name": name,
         "email": email,
         "phone": phone,
+        "role": "user",
         "createdAt": DateTime.now().toIso8601String(),
       });
+
+      await credential.user!.sendEmailVerification();
 
       _showMessage("Cadastro realizado com sucesso!");
 

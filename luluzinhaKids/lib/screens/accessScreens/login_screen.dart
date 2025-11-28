@@ -1,13 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/screens/accessScreens/register_screen.dart';
 import 'package:luluzinhakids/screens/accessScreens/verify_email_screen.dart';
 import 'package:luluzinhakids/screens/mainScreens/main_screen.dart';
-import 'package:luluzinhakids/screens/accessScreens/register_screen.dart';
 import 'package:luluzinhakids/services/firebase_auth_service.dart';
 import 'package:luluzinhakids/utils/email_validator.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
+
+import '../adminScreens/admin_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => loading = true);
 
       final credential = await authService.makeLogin(email, password);
+
       if (!credential.user!.emailVerified) {
         _showMessage("Verifique seu e-mail antes de entrar");
 
@@ -74,6 +78,22 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         return;
       }
+
+      final doc =
+          await FirebaseFirestore.instance
+              .collection("users")
+              .doc(credential.user!.uid)
+              .get();
+      final role = doc.data()?["role"] ?? "user";
+
+      if (role == "admin") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+        );
+        return;
+      }
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainScreen()),

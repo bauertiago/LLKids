@@ -6,6 +6,7 @@ import 'package:luluzinhakids/screens/paymentScreens/pix_payment_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
+import '../../models/productModels/product_model.dart';
 import '../../widgets/installment_selector.dart';
 import 'add_card_screen.dart';
 import '../mainScreens/main_screen.dart';
@@ -22,28 +23,42 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            CustomHeader(showBackButton: true, showLogo: true),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 20),
-              child: Text(
-                "Formas de Pagamento",
-                style: context.texts.titleLarge,
-              ),
+    return StreamBuilder<List<Product>>(
+      stream: cartService.watchCart(),
+      builder: (_, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final cart = snapshot.data!;
+        final total = cartService.getTotal(cart);
+
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CustomHeader(showBackButton: true, showLogo: true),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 20),
+                  child: Text(
+                    "Formas de Pagamento",
+                    style: context.texts.titleLarge,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Expanded(child: _buildSections(total)),
+              ],
             ),
-            const SizedBox(height: 32),
-            Expanded(child: _buildSections(context)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildSections(BuildContext context) {
+  Widget _buildSections(double total) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
@@ -54,7 +69,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
           icon: Icons.pix,
           title: "PIX",
           onTap: () {
-            final total = cartService.getTotal();
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => PIXPaymentScreen(total: total)),
@@ -73,17 +87,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
             icon: Icon(Icons.delete, color: context.colors.secondary),
           ),
           onTap: () async {
-            final total = cartService.getTotal();
             final result = await _showInstallmentSheet(total);
             if (result != null) {
-              final parcelas = result["parcelas"];
-              final valorParcela = result["valorParcela"];
-              final comJuros = result["comJuros"];
               _showConfirmPaymentDialog(
                 total,
-                parcelas,
-                valorParcela,
-                comJuros,
+                result["parcelas"],
+                result["valorParcela"],
+                result["comJuros"],
               );
             }
           },
@@ -147,7 +157,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<Map<String, dynamic>?> _showInstallmentSheet(double totalAmount) {
-    return showModalBottomSheet<Map<String, dynamic>>(
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) {

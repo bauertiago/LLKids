@@ -111,37 +111,51 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _showMessage(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: context.colors.secondary),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final cart = cartService.getCart();
+    return StreamBuilder<List<Product>>(
+      stream: cartService.watchCart(),
+      builder: (_, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final cart = snapshot.data!;
+        final total = cartService.getTotal(cart);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomHeader(showBackButton: true, showLogo: true),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Carrinho", style: context.texts.titleLarge),
-              ),
-            ),
-            const SizedBox(height: 16),
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                CustomHeader(showBackButton: true, showLogo: true),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text("Carrinho", style: context.texts.titleLarge),
+                  ),
+                ),
+                const SizedBox(height: 16),
 
-            Expanded(
-              child: cart.isEmpty ? _buildEmptyCart() : _buildCartList(cart),
+                Expanded(
+                  child:
+                      cart.isEmpty ? _buildEmptyCart() : _buildCartList(cart),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar:
-          cart.isEmpty
-              ? _buildBottomEmptyCartButton()
-              : _buildBottomCartButtons(),
+          ),
+          bottomNavigationBar:
+              cart.isEmpty
+                  ? _buildBottomEmptyCartButton()
+                  : _buildBottomCartButtons(total: total),
+        );
+      },
     );
   }
 
@@ -200,9 +214,9 @@ class _CartScreenState extends State<CartScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          ...cart.map((product) => _buildCartItem(product)).toList(),
+          ...cart.map((product) => _buildCartItem(product)),
           const SizedBox(height: 16),
-          _buildTotal(),
+          _buildTotal(cart),
           const SizedBox(height: 16),
           _buildAddressSection(),
           const SizedBox(height: 16),
@@ -221,11 +235,19 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  product.nameImage,
+                child: Image.network(
+                  product.imageUrl,
                   width: 150,
                   height: 170,
                   fit: BoxFit.cover,
+                  errorBuilder:
+                      (_, __, ___) => Container(
+                        width: 150,
+                        height: 170,
+                        color: Colors.grey.shade200,
+                        alignment: Alignment.center,
+                        child: Icon(Icons.image_not_supported, size: 28),
+                      ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -328,8 +350,8 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildTotal() {
-    final total = cartService.getTotal();
+  Widget _buildTotal(List<Product> cart) {
+    final total = cartService.getTotal(cart);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Align(
@@ -430,7 +452,15 @@ class _CartScreenState extends State<CartScreen> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () {
-                  setState(() => isEditingAddress = true);
+                  setState(() {
+                    isEditingAddress = true;
+                    streetController.clear();
+                    numberController.clear();
+                    districtController.clear();
+                    stateController.clear();
+                    cityController.clear();
+                    zipCodeController.clear();
+                  });
                 },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: context.colors.secondary, width: 1),
@@ -487,7 +517,7 @@ class _CartScreenState extends State<CartScreen> {
           hasError: streetError,
           prefixIcon: Icons.location_on_outlined,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -513,7 +543,18 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
+        CustomInput(
+          label: "CEP",
+          requiredField: true,
+          controller: zipCodeController,
+          hintText: "CEP",
+          hasError: zipCodeError,
+          prefixIcon: Icons.local_post_office_outlined,
+          keyboardType: TextInputType.number,
+          onChanged: _searchZipCode,
+        ),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -539,37 +580,54 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        CustomInput(
-          label: "CEP",
-          requiredField: true,
-          controller: zipCodeController,
-          hintText: "CEP",
-          hasError: zipCodeError,
-          prefixIcon: Icons.local_post_office_outlined,
-          keyboardType: TextInputType.number,
-          onChanged: _searchZipCode,
-        ),
         const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: isSavingAddress ? null : _saveAddress,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.colors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: isSavingAddress ? null : _saveAddress,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child:
+                    isSavingAddress
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text("Confirmar", style: context.texts.labelMedium),
               ),
             ),
-            child:
-                isSavingAddress
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                      "Confirmar Endereço",
-                      style: context.texts.labelMedium,
-                    ),
-          ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    isEditingAddress = false;
+
+                    numberController.clear();
+                    streetController.clear();
+                    districtController.clear();
+                    cityController.clear();
+                    stateController.clear();
+                    zipCodeController.clear();
+                  });
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.secondary, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text("Cancelar", style: context.texts.bodyMedium),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 4),
       ],
@@ -660,18 +718,45 @@ class _CartScreenState extends State<CartScreen> {
                     itemBuilder: (_, i) {
                       final addr = _addresses[i];
                       final isSelected = addr.id == _selectedAddress?.id;
-                      return ListTile(
-                        title: Text(addr.toString()),
-                        trailing:
-                            isSelected
-                                ? Icon(
+
+                      return Card(
+                        child: ListTile(
+                          title: Text(addr.toString()),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isSelected)
+                                Icon(
                                   Icons.check,
                                   color: context.colors.primary,
-                                )
-                                : null,
-                        onTap: () {
-                          Navigator.pop(context, addr);
-                        },
+                                ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () async {
+                                  bool confirm = await _confirmDeleteAddress();
+                                  if (confirm) {
+                                    await addressService.deleteAddress(addr.id);
+                                    setState(() {
+                                      _addresses.removeAt(i);
+                                      if (_selectedAddress?.id == addr.id) {
+                                        _selectedAddress =
+                                            _addresses.isNotEmpty
+                                                ? _addresses.last
+                                                : null;
+                                      }
+                                    });
+                                    Navigator.pop(context);
+                                    _showMessage(
+                                      "Endereço excluído com sucesso.",
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+
+                          onTap: () => Navigator.pop(context, addr),
+                        ),
                       );
                     },
                   ),
@@ -691,7 +776,39 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  Widget _buildBottomCartButtons() {
+  Future<bool> _confirmDeleteAddress() async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: Text(
+                "Excluir endereço?",
+                style: context.texts.titleMedium,
+              ),
+              content: Text(
+                "Tem certeza que deseja remover este endereço?",
+                style: context.texts.bodyMedium,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(
+                    "Cancelar",
+                    style: TextStyle(color: context.colors.secondary),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text("Excluir", style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // se fechar sem escolher nada, retorna false
+  }
+
+  Widget _buildBottomCartButtons({required double total}) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(

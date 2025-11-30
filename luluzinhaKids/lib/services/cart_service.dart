@@ -1,66 +1,105 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/productModels/product_model.dart';
 
 class CartService {
-  static final CartService _instance = CartService._internal();
-  factory CartService() => _instance;
+  final _db = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
 
-  CartService._internal();
+  String get uid => _auth.currentUser!.uid;
 
-  final List<Product> _cart = [];
+  CollectionReference get cartRef =>
+      _db.collection('users').doc(uid).collection('cart');
+  Future<List<Product>> loadCart() async {
+    final data = await cartRef.get();
+    return data.docs.map((doc) {
+      final map = doc.data() as Map<String, dynamic>;
+      return Product(
+        id: doc.id,
+        name: map["name"],
+        costPrice: 0,
+        salePrice: map["salePrice"]?.toDouble() ?? 0.0,
+        description: "",
+        category: "",
+        imageUrl: map["imageUrl"],
+        stock: {},
+        highlight: false,
+        createdAt: DateTime.now(),
+        searchKeywords: [],
+        quantity: map["quantity"],
+        selectedSize: map["selectedSize"],
+      );
+    }).toList();
+  }
 
-  List<Product> getCart() => _cart;
+  Future<void> addToCart(Product product) async {
+    final doc = cartRef.doc(product.id);
+    final item = await doc.get();
 
-  void addToCart(Product product) {
-    final index = _cart.indexWhere(
-      (p) => p.id == product.id && p.selectedSize == product.selectedSize,
-    );
-
-    if (index != -1) {
-      _cart[index].quantity++;
+    if (item.exists) {
+      await doc.update({"quantity": item["quantity"] + 1});
     } else {
-      _cart.add(product);
+      await doc.set({
+        "name": product.name,
+        "imageUrl": product.imageUrl,
+        "salePrice": product.salePrice,
+        "quantity": product.quantity,
+        "selectedSize": product.selectedSize,
+      });
     }
   }
 
-  void removeFromCart(Product product) {
-    _cart.removeWhere(
-      (p) => p.id == product.id && p.selectedSize == product.selectedSize,
-    );
+  Future<void> removeFromCart(Product product) async =>
+      await cartRef.doc(product.id).delete();
+
+  Future<void> addQuantity(Product product) async {
+    await cartRef.doc(product.id).update({"quantity": product.quantity + 1});
   }
 
-  void addQuantity(Product product) {
-    final index = _cart.indexWhere(
-      (p) => p.id == product.id && p.selectedSize == product.selectedSize,
-    );
-
-    if (index != -1) {
-      _cart[index].quantity++;
+  Future<void> decreaseQuantity(Product product) async {
+    final doc = cartRef.doc(product.id);
+    final item = await doc.get();
+    if (item.exists && item["quantity"] > 1) {
+      await doc.update({"quantity": item["quantity"] - 1});
+    } else {
+      removeFromCart(product);
     }
   }
 
-  void decreaseQuantity(Product product) {
-    final index = _cart.indexWhere(
-      (p) => p.id == product.id && p.selectedSize == product.selectedSize,
-    );
+  Stream<List<Product>> watchCart() => cartRef.snapshots().map(
+    (snap) =>
+        snap.docs.map((d) {
+          final map = d.data() as Map<String, dynamic>;
+          return Product(
+            id: d.id,
+            name: map["name"],
+            costPrice: 0,
+            salePrice: map["salePrice"],
+            description: "",
+            category: "",
+            imageUrl: map["imageUrl"],
+            stock: {},
+            highlight: false,
+            createdAt: DateTime.now(),
+            searchKeywords: [],
+            quantity: map["quantity"],
+            selectedSize: map["selectedSize"],
+          );
+        }).toList(),
+  );
 
-    if (index != -1) {
-      if (_cart[index].quantity > 1) {
-        _cart[index].quantity--;
-      } else {
-        // se quantidade chegar a zero, remove o item
-        _cart.removeAt(index);
-      }
+  double getTotal(List<Product> cart) =>
+      cart.fold<double>(0.0, (t, p) => t + (p.salePrice * p.quantity));
+
+  Future<void> clearCart() async {
+    final batch = _db.batch();
+    final items = await cartRef.get();
+
+    for (var doc in items.docs) {
+      batch.delete(doc.reference);
     }
-  }
 
-  double getTotal() {
-    return _cart.fold(
-      0.0,
-      (sum, item) => sum + (item.salePrice * item.quantity),
-    );
-  }
-
-  void clearCart() {
-    _cart.clear();
+    await batch.commit();
   }
 }

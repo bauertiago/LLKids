@@ -1,10 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/services/customer_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
-import '../../models/customerModels/customer_model.dart';
 import '../accessScreens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,6 +15,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Map<String, dynamic>? userData;
+
+  bool loading = true;
+
   bool showNotifications = false;
   bool showOrders = false;
   bool showPersonalData = false;
@@ -26,10 +30,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool showPasswordNew = false;
   bool showPasswordConfirm = false;
 
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final doc =
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+
+    setState(() {
+      userData = doc.data();
+      loading = false;
+    });
+  }
+
+  Future<void> _changePassword() async {
+    final current = currentPasswordController.text.trim();
+    final newPass = newPasswordController.text.trim();
+    final confirm = confirmPasswordController.text.trim();
+
+    if (current.isEmpty || newPass.isEmpty || confirm.isEmpty) {
+      _showMsg("Preencha todos os campos.");
+      return;
+    }
+
+    if (newPass.length < 8) {
+      _showMsg("A nova senha deve ter ao menos 8 caracteres.");
+      return;
+    }
+
+    if (newPass != confirm) {
+      _showMsg("As senhas não coincidem.");
+      return;
+    }
+
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final cred = EmailAuthProvider.credential(
+        email: user.email!,
+        password: current,
+      );
+
+      // Reautenticar antes de alterar senha
+      await user.reauthenticateWithCredential(cred);
+
+      // Trocar senha
+      await user.updatePassword(newPass);
+
+      _showMsg("Senha alterada com sucesso! 🔒");
+
+      currentPasswordController.clear();
+      newPasswordController.clear();
+      confirmPasswordController.clear();
+    } catch (e) {
+      _showMsg("Senha atual incorreta ou sessão expirada.");
+    }
+  }
+
+  void _showMsg(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: context.colors.secondary),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Customer user = CustomerService().getCustomer();
-
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (userData == null) {
+      return Scaffold(
+        body: Center(
+          child: Text(
+            "Erro ao carregar dados do usuário.",
+            style: context.texts.bodyLarge,
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -44,17 +129,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
 
             const SizedBox(height: 16),
-            _buildProfileHeader(user),
+            _buildProfileHeader(),
             const SizedBox(height: 16),
 
-            Expanded(child: _buildSection(context, user)),
+            Expanded(child: _buildSection(context)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileHeader(Customer user) {
+  Widget _buildProfileHeader() {
     return Column(
       children: [
         Stack(
@@ -86,13 +171,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        Text(user.name, style: context.texts.titleMedium),
-        Text(user.email, style: context.texts.titleSmall),
+        Text(userData!["name"], style: context.texts.titleMedium),
+        Text(userData!["email"], style: context.texts.titleSmall),
       ],
     );
   }
 
-  Widget _buildSection(BuildContext context, Customer user) {
+  Widget _buildSection(BuildContext context) {
     return ListView(
       children: [
         _buildOption(
@@ -122,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           expanded: showPersonalData,
           onTap: () => setState(() => showPersonalData = !showPersonalData),
         ),
-        if (showPersonalData) _buildPersonalDataSection(user),
+        if (showPersonalData) _buildPersonalDataSection(),
 
         _divider(),
 
@@ -259,16 +344,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPersonalDataSection(Customer user) {
+  Widget _buildPersonalDataSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _info("Nome", user.name),
-          _info("Email", user.email.replaceRange(3, 8, "*****")),
-          _info("Telefone", user.phoneNumber.replaceRange(5, 10, "*****")),
-          _info("Endereço", "Rua A, nº10, Bairro, Cidade"),
+          _info("Nome", userData!["name"]),
+          _info("Email", userData!["email"].replaceRange(3, 8, "*****")),
+          _info("Telefone", userData!["phone"].replaceRange(5, 10, "*****")),
         ],
       ),
     );
@@ -309,6 +393,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             "Digite a senha atual",
             showPasswordCurrent,
             () => setState(() => showPasswordCurrent = !showPasswordCurrent),
+            controller: currentPasswordController,
           ),
 
           const SizedBox(height: 12),
@@ -317,6 +402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             "Nova senha",
             showPasswordNew,
             () => setState(() => showPasswordNew = !showPasswordNew),
+            controller: newPasswordController,
           ),
 
           const SizedBox(height: 12),
@@ -325,6 +411,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             "Confirme a senha",
             showPasswordConfirm,
             () => setState(() => showPasswordConfirm = !showPasswordConfirm),
+            controller: confirmPasswordController,
           ),
 
           const SizedBox(height: 16),
@@ -340,7 +427,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {},
+              onPressed: _changePassword,
               child: const Text(
                 "Confirmar",
                 style: TextStyle(color: Colors.white),
@@ -352,13 +439,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _passwordField(String label, bool visible, VoidCallback toggle) {
+  Widget _passwordField(
+    String label,
+    bool visible,
+    VoidCallback toggle, {
+    required TextEditingController controller,
+  }) {
     return CustomInput(
       label: label,
       requiredField: true,
       hintText: label,
       prefixIcon: Icons.lock_outline,
       obscureText: !visible,
+      controller: controller,
       suffixIcon: IconButton(
         icon: Icon(
           visible ? Icons.visibility_outlined : Icons.visibility_off_outlined,

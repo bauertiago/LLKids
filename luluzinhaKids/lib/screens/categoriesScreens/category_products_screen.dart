@@ -4,19 +4,15 @@ import 'package:luluzinhakids/extensions/context_extensions.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 
+import '../../services/product_service.dart';
 import '../../widgets/custom_header.dart';
 import '../../widgets/search_with_suggestions.dart';
 import '../productsScreens/product_detail_screen.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final String title;
-  final List<Product> products;
 
-  const CategoryProductsScreen({
-    super.key,
-    required this.title,
-    required this.products,
-  });
+  const CategoryProductsScreen({super.key, required this.title});
 
   @override
   State<CategoryProductsScreen> createState() => _CategoryProductsScreenState();
@@ -29,6 +25,15 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   );
 
   final _favoritesService = FavoritesService();
+  final _productService = ProductService();
+
+  Future<List<Product>>? productsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    productsFuture = _productService.getProductsByCategory(widget.title);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,18 +59,39 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
               child: Text(widget.title, style: context.texts.titleLarge),
             ),
             const SizedBox(height: 12),
-            Expanded(child: _buildGrid()),
+            Expanded(
+              child: FutureBuilder<List<Product>>(
+                future: productsFuture,
+                builder: (_, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final products = snapshot.data!;
+                  if (products.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "Nenhum produto nessa categoria",
+                        style: context.texts.bodyMedium,
+                      ),
+                    );
+                  }
+
+                  return _buildGrid(products);
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(List<Product> products) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
-        itemCount: widget.products.length,
+        itemCount: products.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 12,
@@ -73,7 +99,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           childAspectRatio: 0.72,
         ),
         itemBuilder: (_, index) {
-          final item = widget.products[index];
+          final item = products[index];
           return _buildProductCard(item);
         },
       ),
@@ -85,35 +111,38 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
       borderRadius: BorderRadius.circular(16),
       child: Stack(
         children: [
-          GestureDetector(
-            onTap: () {},
-            child: Image.asset(
-              item.nameImage,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            ),
+          Image.network(
+            item.imageUrl,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder:
+                (_, __, ___) => Container(
+                  color: Colors.grey.shade200,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                ),
           ),
 
           Positioned(
             top: 8,
             right: 8,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _favoritesService.toggleFavorite(item);
-                });
+            child: FutureBuilder<bool>(
+              future: _favoritesService.isFavorite(item.id),
+              builder: (_, snap) {
+                final fav = snap.data ?? false;
+                return GestureDetector(
+                  onTap: () async {
+                    await _favoritesService.toggleFavorite(item);
+                    setState(() {});
+                  },
+                  child: Icon(
+                    fav ? Icons.favorite : Icons.favorite_border,
+                    color: fav ? Colors.red : context.colors.secondary,
+                    size: 26,
+                  ),
+                );
               },
-              child: Icon(
-                _favoritesService.isFavorite(item)
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color:
-                    _favoritesService.isFavorite(item)
-                        ? Colors.red
-                        : Colors.white,
-                size: 26,
-              ),
             ),
           ),
 

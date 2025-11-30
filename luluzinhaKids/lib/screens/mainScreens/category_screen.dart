@@ -22,15 +22,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
     "Shorts": "assets/images/categoria_shorts.jpg",
     "Vestidos": "assets/images/categoria_vestidos.jpg",
     "Praia": "assets/images/categoria_praia.jpg",
+    "Blusas": "assets/images/categoria_blusas.jpeg",
   };
 
   final _productService = ProductService();
-  late List<String> allCategories;
+  late Future<List<String>> categoryFuture;
 
   @override
   void initState() {
     super.initState();
-    allCategories = _productService.getCategories();
+    categoryFuture = _productService.getCategories();
   }
 
   @override
@@ -58,7 +59,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 child: Text("Categorias", style: context.texts.titleLarge),
               ),
               const SizedBox(height: 24),
-              _buildCategoryList(),
+              _buildFutureCategories(),
             ],
           ),
         ),
@@ -66,12 +67,38 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  Widget _buildCategoryList() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: allCategories.map((cat) => _buildCategoryCard(cat)).toList(),
-      ),
+  Widget _buildFutureCategories() {
+    return FutureBuilder<List<String>>(
+      future: categoryFuture,
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: List.generate(
+                6,
+                (_) => Container(
+                  height: 60,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+        final categories = snapshot.data!;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ListView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: categories.map((cat) => _buildCategoryCard(cat)).toList(),
+          ),
+        );
+      },
     );
   }
 
@@ -91,19 +118,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () async {
-          final products = _productService.getProductsByCategory(categoryName);
-          await Navigator.push(
+        onTap: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (_) => CategoryProductsScreen(
-                    title: categoryName,
-                    products: products,
-                  ),
+              builder: (_) => CategoryProductsScreen(title: categoryName),
             ),
           );
-          setState(() {});
         },
         child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 4, top: 4, bottom: 4),

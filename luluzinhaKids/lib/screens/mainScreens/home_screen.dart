@@ -2,7 +2,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/productModels/product_mock.dart';
 import 'package:luluzinhakids/models/productModels/product_model.dart';
 import 'package:luluzinhakids/screens/productsScreens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
@@ -19,13 +18,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _productService = ProductService();
-  late List<Product> _highlights;
+  final productService = ProductService();
+
+  late Future<List<Product>> highlightFuture;
+  late Future<List<String>> categoryFuture;
+
+  bool loaded = false;
 
   @override
   void initState() {
     super.initState();
-    _highlights = _productService.getHighlights();
+    categoryFuture = productService.getCategories();
+    highlightFuture = productService.getLatestHighlights();
+    loadAll();
+  }
+
+  Future<void> loadAll() async {
+    await Future.wait([categoryFuture, highlightFuture]);
+
+    if (mounted) {
+      setState(() => loaded = true);
+    }
   }
 
   final NumberFormat currencyFormat = NumberFormat.currency(
@@ -38,77 +51,74 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomHeader(showBackButton: false, showLogo: true),
-              SearchWithSuggestions(
-                onProductSelected: (product) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProductDetailScreen(product: product),
+      body:
+          loaded
+              ? SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    CustomHeader(showBackButton: false, showLogo: true),
+                    SearchWithSuggestions(
+                      onProductSelected: (product) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => ProductDetailScreen(product: product),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-              Column(
-                children: [
-                  const SizedBox(height: 8),
-                  _buildCategory(),
-                  _buildHighlight(),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+                    Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        _buildCategories(),
+                        _buildHighlight(),
+                      ],
+                    ),
+                  ],
+                ),
+              )
+              : const Center(child: CircularProgressIndicator()),
     );
   }
 
-  Widget _buildCategory() {
-    final categorys = [
-      "Conjuntos",
-      "Calças",
-      "Camisetas",
-      "Shorts",
-      "Vestidos",
-      "Praia",
-    ];
+  Widget _buildCategories() {
+    return FutureBuilder<List<String>>(
+      future: categoryFuture,
+      builder: (_, snapshot) {
+        if (!loaded) return SizedBox.shrink();
 
-    return Container(
-      height: 100,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: categorys.map((c) => _buildCategoryCard(c)).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(String texto) {
-    return InkResponse(
-      containedInkWell: true,
-      borderRadius: BorderRadius.circular(50),
-      onTap: () {
-        final categoryName = texto;
-        if (mockProduct.containsKey(categoryName)) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (_) => CategoryProductsScreen(
-                    title: categoryName,
-                    products: mockProduct[categoryName]!,
-                  ),
-            ),
+        final categories = snapshot.data ?? [];
+        if (categories.isEmpty) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: Text("Nenhuma categoria encontrada")),
           );
         }
+
+        return SizedBox(
+          height: 100,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            children: categories.map((c) => _buildCategoryCard(c)).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryCard(String name) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(50),
+      onTap: () async {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryProductsScreen(title: name),
+          ),
+        );
       },
       child: Container(
         width: 100,
@@ -128,53 +138,77 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         alignment: Alignment.center,
-        child: Text(texto, style: context.texts.labelLarge),
+        child: Text(name, style: context.texts.labelLarge),
       ),
     );
   }
 
   Widget _buildHighlight() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text("Destaques", style: context.texts.titleLarge),
-        ),
-        CarouselSlider(
-          options: CarouselOptions(
-            height: 350,
-            enlargeCenterPage: true,
-            autoPlay: true,
-            viewportFraction: 0.9,
-            onPageChanged: (index, reason) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-          ),
-          items: _highlights.map((item) => _buildProductCard(item)).toList(),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            _highlights.length,
-            (index) => Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color:
-                    _currentIndex == index
-                        ? const Color(0xFFFF2BA9)
-                        : Colors.grey.shade400,
+    return FutureBuilder<List<Product>>(
+      future: highlightFuture,
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.only(top: 30),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "Nenhum destaque disponível",
+              style: context.texts.bodyMedium,
+            ),
+          );
+        }
+
+        final highlights = snapshot.data!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text("Destaques", style: context.texts.titleLarge),
+            ),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 350,
+                enlargeCenterPage: true,
+                autoPlay: true,
+                viewportFraction: 0.9,
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
+              items: highlights.map((item) => _buildProductCard(item)).toList(),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                highlights.length,
+                (index) => Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        _currentIndex == index
+                            ? const Color(0xFFFF2BA9)
+                            : Colors.grey.shade400,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -184,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(item.nameImage, fit: BoxFit.cover),
+          Image.network(item.imageUrl, fit: BoxFit.cover),
           Container(
             alignment: Alignment.bottomCenter,
             padding: const EdgeInsets.all(16),

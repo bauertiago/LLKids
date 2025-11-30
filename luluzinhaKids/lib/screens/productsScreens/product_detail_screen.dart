@@ -120,10 +120,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.asset(
-          widget.product.nameImage,
+        child: Image.network(
+          widget.product.imageUrl,
           height: 350,
           fit: BoxFit.cover,
+          errorBuilder:
+              (_, __, ___) => Container(
+                height: 350,
+                color: Colors.grey.shade300,
+                child: const Icon(Icons.image_not_supported, size: 45),
+              ),
         ),
       ),
     );
@@ -151,82 +157,64 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildSizes(Product product) {
-    final List<String> allSizes = [
-      "02",
-      "03",
-      "04",
-      "05",
-      "06",
-      "07",
-      "08",
-      "09",
-      "10",
-      "11",
-      "12",
-    ];
+    final List<String> allSizes = ["02", "04", "06", "08", "10", "12"];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Tamanhos", style: context.texts.titleMedium),
+          Text("Escolha um Tamanho", style: context.texts.titleMedium),
           const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 2,
-            ),
-            itemCount: allSizes.length,
-            itemBuilder: (_, i) {
-              final size = allSizes[i];
-              final bool isAvailable = product.availableSizes.contains(size);
-              final bool isSelected = selectedSize == size;
 
-              Color bgColor;
-              Color textColor;
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                allSizes.map((size) {
+                  final bool isAvailable = product.stock.containsKey(size);
+                  final bool isSelected = selectedSize == size;
 
-              if (isSelected) {
-                bgColor = context.colors.secondary;
-                textColor = Colors.white;
-              } else if (isAvailable) {
-                bgColor = const Color(0xFFDDE1F6);
-                textColor = Colors.black87;
-              } else {
-                bgColor = Colors.grey.shade300;
-                textColor = Colors.grey;
-              }
+                  Color bgColor;
+                  Color textColor;
+                  Color borderColor;
 
-              return GestureDetector(
-                onTap:
-                    isAvailable
-                        ? () {
-                          setState(() => selectedSize = size);
-                        }
-                        : null,
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color:
-                          isSelected
-                              ? context.colors.secondary
-                              : Colors.transparent,
-                      width: 1.5,
+                  if (!isAvailable) {
+                    bgColor = Colors.grey.shade300;
+                    textColor = Colors.grey;
+                    borderColor = Colors.transparent;
+                  } else if (isSelected) {
+                    bgColor = context.colors.secondary;
+                    textColor = Colors.white;
+                    borderColor = context.colors.secondary;
+                  } else {
+                    bgColor = const Color(0xFFDDE1F6);
+                    textColor = Colors.black87;
+                    borderColor = Colors.transparent;
+                  }
+
+                  return ChoiceChip(
+                    label: Text(
+                      size,
+                      style: context.texts.bodyMedium?.copyWith(
+                        color: textColor,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    size,
-                    style: context.texts.bodyMedium?.copyWith(color: textColor),
-                  ),
-                ),
-              );
-            },
+                    onSelected:
+                        isAvailable
+                            ? (_) {
+                              setState(() => selectedSize = size);
+                            }
+                            : null,
+                    selected: isSelected,
+                    selectedColor: context.colors.secondary,
+                    disabledColor: Colors.grey.shade300,
+                    backgroundColor: bgColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: borderColor, width: 1.5),
+                    ),
+                  );
+                }).toList(),
           ),
         ],
       ),
@@ -262,9 +250,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: context.colors.secondary,
-                content: Text(
-                  "Por favor, selecione um tamanho antes de adicionar ao carrinho.",
-                ),
+                content: Text("Por favor, selecione um tamanho."),
               ),
             );
             return;
@@ -277,8 +263,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             salePrice: widget.product.salePrice,
             description: widget.product.description,
             category: widget.product.category,
-            nameImage: widget.product.nameImage,
-            availableSizes: widget.product.availableSizes,
+            imageUrl: widget.product.imageUrl,
+            stock: widget.product.stock,
+            highlight: widget.product.highlight,
+            createdAt: widget.product.createdAt,
+            searchKeywords: widget.product.searchKeywords,
             selectedSize: selectedSize,
             quantity: 1,
           );

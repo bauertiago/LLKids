@@ -37,9 +37,6 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    if (index == 1) {
-      FavoritesScreen.refresh?.call();
-    }
   }
 
   @override

@@ -18,21 +18,7 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  final _favoritesService = FavoritesService();
-
-  @override
-  void initState() {
-    super.initState();
-    FavoritesScreen.refresh = () {
-      if (mounted) setState(() {});
-    };
-  }
-
-  @override
-  void dispose() {
-    FavoritesScreen.refresh = null;
-    super.dispose();
-  }
+  final favoritesService = FavoritesService();
 
   final NumberFormat currencyFormat = NumberFormat.currency(
     locale: 'pt_BR',
@@ -41,33 +27,44 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final favorites = _favoritesService.getFavorites();
-
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomHeader(showBackButton: true, showLogo: true),
-            SearchWithSuggestions(
-              onProductSelected: (product) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ProductDetailScreen(product: product),
-                  ),
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SearchWithSuggestions(
+                onProductSelected: (product) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailScreen(product: product),
+                    ),
+                  );
+                },
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Text("Favoritos", style: context.texts.titleLarge),
             ),
             Expanded(
-              child:
-                  favorites.isEmpty
-                      ? _buildEmptyState()
-                      : _buildFavoritesGrid(favorites),
+              child: StreamBuilder<List<Product>>(
+                stream: favoritesService.watchFavorites(),
+                builder: (_, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  final favs = snapshot.data!;
+
+                  if (favs.isEmpty) {
+                    return _buildEmpty();
+                  }
+                  return _buildFavoritesGrid(favs);
+                },
+              ),
             ),
           ],
         ),
@@ -75,17 +72,20 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmpty() {
     return Center(
-      child: Text("Nenhum favorito ainda...", style: context.texts.bodyMedium),
+      child: Text(
+        "Nenhum produto favorito ainda...",
+        style: context.texts.bodyMedium,
+      ),
     );
   }
 
-  Widget _buildFavoritesGrid(List<Product> favorites) {
+  Widget _buildFavoritesGrid(List<Product> listFavorites) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
-        itemCount: favorites.length,
+        itemCount: listFavorites.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 12,
@@ -93,8 +93,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           childAspectRatio: 0.72,
         ),
         itemBuilder: (_, index) {
-          final item = favorites[index];
-          return _buildProductCard(item);
+          return _buildProductCard(listFavorites[index]);
         },
       ),
     );
@@ -107,33 +106,40 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         children: [
           GestureDetector(
             onTap: () {},
-            child: Image.asset(
-              item.nameImage,
+            child: Image.network(
+              item.imageUrl,
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
+              errorBuilder:
+                  (_, __, ___) => Container(
+                    color: Colors.grey.shade200,
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.broken_image, size: 40),
+                  ),
             ),
           ),
 
           Positioned(
             top: 8,
             right: 8,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _favoritesService.toggleFavorite(item);
-                });
+            child: FutureBuilder<bool>(
+              future: favoritesService.isFavorite(item.id),
+              builder: (_, snap) {
+                final fav = snap.data ?? false;
+
+                return GestureDetector(
+                  onTap: () async {
+                    await favoritesService.toggleFavorite(item);
+                    setState(() {}); // ← atualiza tela corretamente
+                  },
+                  child: Icon(
+                    fav ? Icons.favorite : Icons.favorite_border,
+                    color: fav ? Colors.red : Colors.white,
+                    size: 26,
+                  ),
+                );
               },
-              child: Icon(
-                _favoritesService.isFavorite(item)
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color:
-                    _favoritesService.isFavorite(item)
-                        ? Colors.red
-                        : Colors.white,
-                size: 26,
-              ),
             ),
           ),
 

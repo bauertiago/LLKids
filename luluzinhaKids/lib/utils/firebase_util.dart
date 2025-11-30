@@ -16,7 +16,7 @@ class FirebaseUtil {
   }
 
   Future<void> saveUserData(String uid, Map<String, dynamic> data) async {
-    await firestore.collection("users").doc(uid).set(data);
+    await FirebaseFirestore.instance.collection("users").doc(uid).set(data);
   }
 
   Future<void> addAdress(String uid, Map<String, dynamic> address) async {

@@ -32,19 +32,7 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
     "Praia",
   ];
 
-  final sizes = [
-    "02",
-    "03",
-    "04",
-    "05",
-    "06",
-    "07",
-    "08",
-    "09",
-    "10",
-    "11",
-    "12",
-  ];
+  final sizes = ["02", "04", "06", "08", "10", "12"];
   Map<String, int> stock = {};
 
   String? selectedCategory;
@@ -140,173 +128,180 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Cadastrar Produto", style: context.texts.labelLarge),
-        backgroundColor: context.colors.primary,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // IMAGEM
-            GestureDetector(
-              onTap: pickImage,
-              child: Container(
-                height: 160,
-                width: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(12),
-                  image:
-                      selectedImage != null
-                          ? DecorationImage(
-                            image: FileImage(selectedImage!),
-                            fit: BoxFit.cover,
-                          )
-                          : null,
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // IMAGEM
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Container(
+                    height: 160,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(12),
+                      image:
+                          selectedImage != null
+                              ? DecorationImage(
+                                image: FileImage(selectedImage!),
+                                fit: BoxFit.cover,
+                              )
+                              : null,
+                    ),
+                    child:
+                        selectedImage == null
+                            ? const Center(
+                              child: Icon(Icons.add_a_photo, size: 50),
+                            )
+                            : null,
+                  ),
                 ),
-                child:
-                    selectedImage == null
-                        ? const Center(child: Icon(Icons.add_a_photo, size: 50))
-                        : null,
-              ),
-            ),
 
-            const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-            CustomInput(
-              label: "Nome do Produto",
-              hintText: "Digite o nome",
-              requiredField: true,
-              prefixIcon: Icons.label,
-              controller: nameController,
-            ),
-
-            CustomInput(
-              label: "Descrição",
-              hintText: "Digite a descrição",
-              requiredField: true,
-              prefixIcon: Icons.description,
-              controller: descController,
-            ),
-
-            CustomInput(
-              label: "Preço de Custo",
-              hintText: "0.00",
-              requiredField: true,
-              prefixIcon: Icons.monetization_on,
-              keyboardType: TextInputType.number,
-              controller: costController,
-            ),
-
-            CustomInput(
-              label: "Preço de Venda",
-              hintText: "0.00",
-              requiredField: true,
-              prefixIcon: Icons.sell,
-              keyboardType: TextInputType.number,
-              controller: priceController,
-            ),
-
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: context.colors.secondary),
-              ),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                underline: const SizedBox(),
-                hint: Text(
-                  "Selecione uma categoria",
-                  style: context.texts.bodyMedium,
+                CustomInput(
+                  label: "Nome do Produto",
+                  hintText: "Digite o nome",
+                  requiredField: true,
+                  prefixIcon: Icons.label,
+                  controller: nameController,
                 ),
-                value: selectedCategory,
-                items:
-                    categories
-                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                        .toList(),
-                onChanged: (v) => setState(() => selectedCategory = v),
-              ),
-            ),
 
-            const SizedBox(height: 12),
+                CustomInput(
+                  label: "Descrição",
+                  hintText: "Digite a descrição",
+                  requiredField: true,
+                  prefixIcon: Icons.description,
+                  controller: descController,
+                ),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Estoque por tamanho",
-                style: context.texts.bodyMedium,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children:
-                  sizes.map((size) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(size),
+                CustomInput(
+                  label: "Preço de Custo",
+                  hintText: "0.00",
+                  requiredField: true,
+                  prefixIcon: Icons.monetization_on,
+                  keyboardType: TextInputType.number,
+                  controller: costController,
+                ),
 
-                        SizedBox(
-                          width: 50,
-                          child: TextFormField(
-                            textAlign: TextAlign.center,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 4,
-                              ),
-                              hintText: "0",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
+                CustomInput(
+                  label: "Preço de Venda",
+                  hintText: "0.00",
+                  requiredField: true,
+                  prefixIcon: Icons.sell,
+                  keyboardType: TextInputType.number,
+                  controller: priceController,
+                ),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: context.colors.secondary),
+                  ),
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    underline: const SizedBox(),
+                    hint: Text(
+                      "Selecione uma categoria",
+                      style: context.texts.bodyMedium,
+                    ),
+                    value: selectedCategory,
+                    items:
+                        categories
+                            .map(
+                              (c) => DropdownMenuItem(value: c, child: Text(c)),
+                            )
+                            .toList(),
+                    onChanged: (v) => setState(() => selectedCategory = v),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Estoque por tamanho",
+                    style: context.texts.bodyMedium,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children:
+                      sizes.map((size) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(size),
+
+                            SizedBox(
+                              width: 50,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 6,
+                                    horizontal: 4,
+                                  ),
+                                  hintText: "0",
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  int val = int.tryParse(value) ?? 0;
+                                  setState(() => stock[size] = val);
+                                },
                               ),
                             ),
-                            onChanged: (value) {
-                              int val = int.tryParse(value) ?? 0;
-                              setState(() => stock[size] = val);
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-            ),
-
-            const SizedBox(height: 12),
-
-            SwitchListTile(
-              title: const Text("Produto em Destaque"),
-              value: highlight,
-              onChanged: (v) => setState(() => highlight = v),
-            ),
-
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: loading ? null : saveProduct,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.colors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                          ],
+                        );
+                      }).toList(),
                 ),
-              ),
-              child:
-                  loading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                        "Cadastrar Produto",
-                        style: context.texts.labelLarge,
-                      ),
+
+                const SizedBox(height: 12),
+
+                SwitchListTile(
+                  title: const Text("Produto em Destaque"),
+                  value: highlight,
+                  onChanged: (v) => setState(() => highlight = v),
+                ),
+
+                const SizedBox(height: 20),
+
+                ElevatedButton(
+                  onPressed: loading ? null : saveProduct,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.colors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child:
+                      loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                            "Cadastrar Produto",
+                            style: context.texts.labelLarge,
+                          ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

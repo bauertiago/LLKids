@@ -102,4 +102,20 @@ class CartService {
 
     await batch.commit();
   }
+
+  Future<List<Map<String, dynamic>>> exportCartItems() async {
+    final snap = await cartRef.get();
+
+    return snap.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+
+      return {
+        "id": doc.id,
+        "name": data["name"],
+        "quantity": data["quantity"],
+        "price": data["salePrice"],
+        "selectedSize": data["selectedSize"],
+      };
+    }).toList();
+  }
 }

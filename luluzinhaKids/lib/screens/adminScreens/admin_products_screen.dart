@@ -2,127 +2,271 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
 
-class AdminProductsScreen extends StatelessWidget {
+import 'admin_edit_Product_screen.dart';
+
+class AdminProductsScreen extends StatefulWidget {
   const AdminProductsScreen({super.key});
 
   @override
+  State<AdminProductsScreen> createState() => _AdminProductsScreenState();
+}
+
+class _AdminProductsScreenState extends State<AdminProductsScreen> {
+  final Map<String, bool> _expandes = {};
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Produtos Cadastrados", style: context.texts.labelLarge),
-        backgroundColor: context.colors.primary,
-      ),
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection("products").snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection("products").snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        final products = snapshot.data!.docs;
 
-          final products = snapshot.data!.docs;
+        return ListView.builder(
+          itemCount: products.length,
+          itemBuilder: (_, i) {
+            final product = products[i];
+            final stock = Map<String, int>.from(product["stock"]);
+            final expanded = _expandes[product.id] ?? false;
 
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (_, i) {
-              final product = products[i];
-              final stock = Map<String, int>.from(product["stock"]);
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
 
-              return Card(
-                margin: const EdgeInsets.all(10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            product["imageUrl"],
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
 
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              product["imageUrl"],
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product["name"],
+                                style: context.texts.titleMedium,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _expandes[product.id] = !expanded;
+                                  });
+                                },
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Estoque",
+                                      style: context.texts.bodyMedium,
+                                    ),
+                                    Icon(
+                                      expanded
+                                          ? Icons.expand_less
+                                          : Icons.expand_more,
+                                      color: context.colors.secondary,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        PopupMenuButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          color: Colors.white,
+                          elevation: 4,
+                          icon: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: context.colors.secondary.withValues(
+                                alpha: .12,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.more_vert,
+                              color: context.colors.secondary,
                             ),
                           ),
 
-                          const SizedBox(width: 12),
-
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    product["name"],
-                                    style: context.texts.titleMedium,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                          itemBuilder:
+                              (_) => [
+                                PopupMenuItem(
+                                  value: "edit",
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color: context.colors.secondary,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        "Editar",
+                                        style: context.texts.bodyMedium,
+                                      ),
+                                    ],
                                   ),
                                 ),
-
-                                PopupMenuButton(
-                                  icon: const Icon(Icons.more_vert),
-                                  itemBuilder:
-                                      (_) => const [
-                                        PopupMenuItem(
-                                          value: "edit",
-                                          child: Text("Editar"),
-                                        ),
-                                        PopupMenuItem(
-                                          value: "delete",
-                                          child: Text("Deletar"),
-                                        ),
-                                      ],
-                                  onSelected: (op) async {
-                                    if (op == "delete") {
-                                      await FirebaseFirestore.instance
-                                          .collection("products")
-                                          .doc(product.id)
-                                          .delete();
-                                    }
-                                  },
+                                PopupMenuItem(
+                                  value: "delete_item",
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.remove_circle,
+                                        size: 18,
+                                        color: Colors.orange,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        "Remover tamanho",
+                                        style: context.texts.bodyMedium,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: "delete_product",
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.delete,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        "Deletar produto",
+                                        style: context.texts.bodyMedium,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ],
-                      ),
+                          onSelected: (op) async {
+                            if (op == "edit") {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => AdminEditProductScreen(
+                                        productId: product.id,
+                                      ),
+                                ),
+                              );
+                              return;
+                            }
 
-                      const SizedBox(height: 14),
+                            if (op == "delete_item") {
+                              _showDeleteOneDialog(product.id, stock);
+                              return;
+                            }
 
+                            if (op == "delete_product") {
+                              final total = stock.values.fold(
+                                0,
+                                (sum, qtd) => sum + qtd,
+                              );
+                              if (total > 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: context.colors.secondary,
+                                    content: Text(
+                                      "O produto não pode ser deletado \npor conter unidades no estoque.",
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (_) => AlertDialog(
+                                      title: const Text("Deletar produto"),
+                                      content: const Text(
+                                        "Tem certeza? O estoque está zerado e isso apagará o produto definitivamente.",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                context.colors.secondary,
+                                          ),
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: const Text("Cancelar"),
+                                        ),
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                context.colors.primary,
+                                          ),
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          child: const Text("Deletar"),
+                                        ),
+                                      ],
+                                    ),
+                              );
+
+                              if (confirm == true) {
+                                await FirebaseFirestore.instance
+                                    .collection("products")
+                                    .doc(product.id)
+                                    .delete();
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    if (expanded) ...[
+                      const SizedBox(height: 12),
                       buildStockTable(context, stock),
                     ],
-                  ),
+                  ],
                 ),
-              );
-            },
-          );
-        },
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
   Widget buildStockTable(BuildContext context, Map<String, int> stock) {
-    final sizes = [
-      "02",
-      "03",
-      "04",
-      "05",
-      "06",
-      "07",
-      "08",
-      "09",
-      "10",
-      "11",
-      "12",
-    ];
+    final sizes = ["02", "04", "06", "08", "10", "12"];
     final int total = stock.values.fold(0, (sum, qtd) => sum + qtd);
 
     return SingleChildScrollView(
@@ -186,5 +330,80 @@ class AdminProductsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showDeleteOneDialog(String productId, Map<String, int> stock) async {
+    final sizes = stock.keys.toList();
+
+    String? selectedSize;
+
+    await showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Remover 1 unidade"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Escolha o tamanho para remover 1 unidade:"),
+              const SizedBox(height: 12),
+
+              DropdownButton<String>(
+                borderRadius: BorderRadius.circular(12),
+                hint: const Text("Selecione o tamanho"),
+                value: selectedSize,
+                isExpanded: true,
+                items:
+                    sizes.map((e) {
+                      return DropdownMenuItem(
+                        value: e,
+                        child: Text("$e • ${stock[e]} unidades"),
+                      );
+                    }).toList(),
+                onChanged: (val) {
+                  selectedSize = val;
+                  Navigator.of(context).pop(); // fecha primeiro diálogo
+                  _confirmDeleteOne(productId, val!, stock[val]!);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteOne(String productId, String size, int currentQty) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Confirmar remoção"),
+            content: Text("Deseja remover 1 unidade do tamanho $size?"),
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colors.secondary,
+                ),
+                onPressed: () => Navigator.pop(context, false),
+                child: Text("Cancelar"),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colors.primary,
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Remover"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      await FirebaseFirestore.instance
+          .collection("products")
+          .doc(productId)
+          .update({"stock.$size": currentQty - 1});
+    }
   }
 }

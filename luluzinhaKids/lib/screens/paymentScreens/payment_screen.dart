@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
@@ -7,6 +8,7 @@ import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
 import '../../models/productModels/product_model.dart';
+import '../../services/card_service.dart';
 import '../../widgets/installment_selector.dart';
 import 'add_card_screen.dart';
 import '../mainScreens/main_screen.dart';
@@ -20,6 +22,7 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   final cartService = CartService();
+  final savedCardService = CardService();
 
   @override
   Widget build(BuildContext context) {
@@ -59,79 +62,88 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _buildSections(double total) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      children: [
-        _divider(),
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: savedCardService.getSavedCard(),
+      builder: (_, snapshot) {
+        final savedCard = snapshot.data;
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            _divider(),
 
-        _buildPaymentOption(
-          context,
-          icon: Icons.pix,
-          title: "PIX",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => PIXPaymentScreen(total: total)),
-            );
-          },
-        ),
+            _buildPaymentOption(
+              icon: Icons.pix,
+              title: "PIX",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PIXPaymentScreen(total: total),
+                  ),
+                );
+              },
+            ),
 
-        _divider(),
+            _divider(),
 
-        _buildPaymentOption(
-          context,
-          icon: Icons.credit_card,
-          title: "**************4321",
-          trailing: IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.delete, color: context.colors.secondary),
-          ),
-          onTap: () async {
-            final result = await _showInstallmentSheet(total);
-            if (result != null) {
-              _showConfirmPaymentDialog(
-                total,
-                result["parcelas"],
-                result["valorParcela"],
-                result["comJuros"],
-              );
-            }
-          },
-        ),
+            if (savedCard != null)
+              _buildPaymentOption(
+                icon: Icons.credit_card,
+                title: "**** **** **** ${savedCard['last4']}",
+                onTap: () async {
+                  final result = await _showInstallmentSheet(total);
+                  if (result != null) _confirmPayment(total, result);
+                },
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    await savedCardService.removeCard();
+                    setState(() {});
+                  },
+                ),
+              ),
+            if (savedCard == null)
+              _buildPaymentOption(
+                icon: Icons.credit_card,
+                title: "Pagar com Cartão (não salvo)",
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddCardScreen(saveOption: true),
+                      ),
+                    ),
+              ),
 
-        _divider(),
+            // _buildPaymentOption(
+            //   icon: Icons.add_card,
+            //   title: "Adicionar novo cartão",
+            //   onTap: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (_) => const AddCardScreen()),
+            //     );
+            //   },
+            // ),
+            _divider(),
 
-        _buildPaymentOption(
-          context,
-          icon: Icons.add_card,
-          title: "Adicionar novo cartão",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AddCardScreen()),
-            );
-          },
-        ),
-
-        _divider(),
-
-        _buildPaymentOption(
-          context,
-          icon: Icons.receipt_long,
-          title: "Boleto Bancário",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const PaymentSlipScreen()),
-            );
-          },
-        ),
-      ],
+            _buildPaymentOption(
+              icon: Icons.receipt_long,
+              title: "Boleto Bancário",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PaymentSlipScreen()),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildPaymentOption(
-    BuildContext context, {
+  Widget _buildPaymentOption({
     required IconData icon,
     required String title,
     VoidCallback? onTap,
@@ -169,12 +181,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void _showConfirmPaymentDialog(
-    double total,
-    int parcelas,
-    double valorParcela,
-    bool comJuros,
-  ) {
+  void _confirmPayment(double total, Map<String, dynamic> result) {
+    final parcelas = result['parcelas'];
+    final valorParcela = result['valorParcela'];
+    final comJuros = result['comJuros'];
     final currency = NumberFormat.currency(locale: "pt_BR", symbol: "R\$");
     final totalFinal = valorParcela * parcelas;
 
@@ -199,7 +209,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                   Text(
                     "Confirmar compra no valor de ${currency.format(totalFinal)}\n"
-                    "parcelada em $parcelas vezes de ${currency.format(valorParcela)}?"
+                    "em $parcelas x ${currency.format(valorParcela)}"
                     "${comJuros ? " (com juros)" : " (sem juros)"}",
                     textAlign: TextAlign.center,
                     style: context.texts.bodyMedium,
@@ -210,10 +220,67 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-                        _showSuccessDialog();
-                        cartService.clearCart();
+
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder:
+                              (_) => Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircularProgressIndicator(
+                                        color: context.colors.primary,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        "Processando seu pagamento...",
+                                        style: context.texts.bodyMedium,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                        );
+
+                        try {
+                          final items = await cartService.exportCartItems();
+                          // 1️⃣ Criar pedido no Firestore
+                          final order = await FirebaseFunctions.instance
+                              .httpsCallable("createOrder")
+                              .call({"items": items, "total": totalFinal});
+
+                          final orderId = order.data["orderId"];
+
+                          // 2️⃣ Atualizar estoque após pagamento
+                          await FirebaseFunctions.instance
+                              .httpsCallable("updateStockAfterPayment")
+                              .call({"orderId": orderId});
+
+                          // 3️⃣ Limpa carrinho
+                          cartService.clearCart();
+
+                          // Fecha o Loading
+                          Navigator.pop(context);
+
+                          // 4️⃣ Sucesso
+                          _showSuccessDialog();
+                        } catch (e) {
+                          print("Erro ao finalizar pedido: $e");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Erro ao processar pagamento."),
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.colors.primary,
@@ -301,7 +368,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           MaterialPageRoute(
                             builder: (_) => const MainScreen(initialIndex: 0),
                           ),
-                          (route) => false,
+                          (_) => false,
                         );
                       },
                     ),

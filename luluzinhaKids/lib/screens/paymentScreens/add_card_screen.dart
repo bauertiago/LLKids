@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/screens/paymentScreens/payment_screen.dart';
+import 'package:luluzinhakids/services/card_service.dart';
 import 'package:luluzinhakids/utils/card_number_formatter.dart';
 import 'package:luluzinhakids/utils/cvv_formatter.dart';
 
@@ -9,7 +11,9 @@ import '../../widgets/custom_header.dart';
 import '../../widgets/custom_input.dart';
 
 class AddCardScreen extends StatefulWidget {
-  const AddCardScreen({super.key});
+  final bool saveOption;
+
+  const AddCardScreen({super.key, this.saveOption = true});
 
   @override
   State<AddCardScreen> createState() => _AddCardScreenState();
@@ -20,7 +24,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
   final _cardNumberController = TextEditingController();
   final _expController = TextEditingController();
   final _cvvController = TextEditingController();
+  final cardService = CardService();
 
+  bool saveCard = false;
   bool isValid = false;
 
   bool nameError = false;
@@ -48,7 +54,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
     if (name.isEmpty) valid = false;
     if (cardNumber.length != 16) valid = false;
-    if (!RegExp(r'^\d{2}/\d{4}$').hasMatch(exp)) valid = false;
+    if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(exp)) valid = false;
     if (cvv.length != 3) valid = false;
 
     setState(() {
@@ -78,8 +84,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Nome", style: context.texts.bodyLarge),
-                    const SizedBox(height: 4),
                     CustomInput(
                       label: "Nome como está no cartão",
                       controller: _nameController,
@@ -90,8 +94,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     ),
 
                     const SizedBox(height: 16),
-                    Text("Número do Cartão", style: context.texts.bodyLarge),
-                    const SizedBox(height: 4),
                     CustomInput(
                       label: "Número do Cartão",
                       requiredField: true,
@@ -113,17 +115,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Data de vencimento",
-                                style: context.texts.bodyLarge,
-                              ),
-                              const SizedBox(height: 4),
                               CustomInput(
                                 label: "Data de Vencimento",
                                 requiredField: true,
                                 hasError: expError,
                                 controller: _expController,
-                                hintText: "MM / AAAA",
+                                hintText: "MM/AA",
                                 prefixIcon: Icons.date_range,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [
@@ -140,8 +137,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("CVV", style: context.texts.bodyLarge),
-                              const SizedBox(height: 4),
                               CustomInput(
                                 label: "CVV",
                                 requiredField: true,
@@ -161,12 +156,24 @@ class _AddCardScreenState extends State<AddCardScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
+
+                    if (widget.saveOption)
+                      CheckboxListTile(
+                        value: saveCard,
+                        title: Text(
+                          "Salvar cartão para compras futuras?",
+                          style: context.texts.bodyMedium,
+                        ),
+                        onChanged: (v) => setState(() => saveCard = v!),
+                      ),
+
+                    const SizedBox(height: 28),
 
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: isValid ? _validateFieldsOnSubmit : null,
+                        onPressed: isValid ? _finishProcess : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: context.colors.primary,
                           disabledBackgroundColor: context.colors.primary
@@ -178,7 +185,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                         ),
 
                         child: Text(
-                          "Adicionar Cartão",
+                          "Continuar",
                           style: context.texts.labelLarge,
                         ),
                       ),
@@ -195,28 +202,22 @@ class _AddCardScreenState extends State<AddCardScreen> {
     );
   }
 
-  void _validateFieldsOnSubmit() {
+  Future<void> _finishProcess() async {
     final name = _nameController.text.trim();
-    final cardNumber = _cardNumberController.text.trim().replaceAll(" ", "");
-    final exp = _expController.text.trim();
-    final cvv = _cvvController.text.trim();
+    final cardNumber = _cardNumberController.text.replaceAll(" ", "");
 
-    setState(() {
-      nameError = name.isEmpty;
-      cardNumberError = cardNumber.length != 16;
-      expError = !RegExp(r'^(0[1-9]|1[0-2])\/\d{4}$').hasMatch(exp);
-      cvvError = cvv.length != 3;
-    });
-
-    if (nameError || cardNumberError || expError || cvvError) {
+    if (saveCard) {
+      await cardService.saveCard(number: cardNumber, holder: name);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Preencha todos os campos corretamente.")),
+        SnackBar(
+          backgroundColor: context.colors.secondary,
+          content: Text("Cartão salvo com sucesso!"),
+        ),
       );
-      return;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Cartão adicionado com sucesso!")),
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const PaymentScreen()),
     );
   }
 }

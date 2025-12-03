@@ -105,17 +105,32 @@ class CartService {
 
   Future<List<Map<String, dynamic>>> exportCartItems() async {
     final snap = await cartRef.get();
+    final items = <Map<String, dynamic>>[];
 
-    return snap.docs.map((doc) {
+    for (var doc in snap.docs) {
       final data = doc.data() as Map<String, dynamic>;
+      final productId = doc.id;
+      final productDoc =
+          await FirebaseFirestore.instance
+              .collection("products")
+              .doc(productId)
+              .get();
 
-      return {
-        "id": doc.id,
+      double costPrice = 0;
+      if (productDoc.exists) {
+        final productData = productDoc.data()!;
+        costPrice = (productData["costPrice"] ?? 0).toDouble();
+      }
+
+      items.add({
+        "id": productId,
         "name": data["name"],
         "quantity": data["quantity"],
         "price": data["salePrice"],
         "selectedSize": data["selectedSize"],
-      };
-    }).toList();
+        "costPrice": costPrice,
+      });
+    }
+    return items;
   }
 }

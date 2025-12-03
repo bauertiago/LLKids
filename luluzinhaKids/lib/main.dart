@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:luluzinhakids/screens/accessScreens/login_screen.dart';
 import 'package:luluzinhakids/screens/mainScreens/home_screen.dart';
 import 'package:luluzinhakids/services/firebase_auth_service.dart';
@@ -31,6 +32,7 @@ final brand = BrandColors(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializeDateFormatting('pt_BR', null);
 
   Stripe.publishableKey =
       'pk_test_51SZDQ42NvLmRG9PZ5VvemzME4t46gajFExSDs3UuxMc6PVYRC3dCtfMT3u39wFy7ZKHiqOjRnt1ow6TXut03pXC400VIrHtWkY';

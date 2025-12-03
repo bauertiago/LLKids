@@ -71,7 +71,11 @@ class _AdminEditProductScreenState extends State<AdminEditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Editar Produto"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text("Editar Produto", style: context.texts.labelLarge),
         backgroundColor: context.colors.primary,
       ),
       body:

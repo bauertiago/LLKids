@@ -23,13 +23,11 @@ class _Register extends State<Register> {
   bool nameError = false;
   bool emailError = false;
   bool passWordError = false;
-  bool phoneError = false;
 
   final firebaseUtil = FirebaseUtil();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final phoneController = TextEditingController();
 
   void _showMessage(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -41,16 +39,14 @@ class _Register extends State<Register> {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-    final phone = phoneController.text.trim();
 
     setState(() {
       nameError = name.isEmpty;
       emailError = email.isEmpty;
       passWordError = password.isEmpty;
-      phoneError = phone.isEmpty;
     });
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty || phone.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
       _showMessage("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -74,7 +70,6 @@ class _Register extends State<Register> {
       await firebaseUtil.saveUserData(credential.user!.uid, {
         "name": name,
         "email": email,
-        "phone": phone,
         "role": "user",
         "createdAt": DateTime.now().toIso8601String(),
       });
@@ -168,29 +163,7 @@ class _Register extends State<Register> {
                 ),
               ),
 
-              Text(
-                "Campos com * são obrigatórios",
-                textAlign: TextAlign.right,
-                style: context.texts.bodySmall?.copyWith(color: Colors.red),
-              ),
-
               const SizedBox(height: 8),
-              CustomInput(
-                label: "Telefone",
-                hintText: "Digite seu telefone",
-                requiredField: true,
-                prefixIcon: Icons.phone,
-                controller: phoneController,
-                hasError: phoneError,
-                keyboardType: TextInputType.phone,
-              ),
-
-              const SizedBox(height: 4),
-              Text(
-                "Campos com * são obrigatórios",
-                textAlign: TextAlign.right,
-                style: context.texts.bodySmall?.copyWith(color: Colors.red),
-              ),
 
               const SizedBox(height: 24),
               ElevatedButton(

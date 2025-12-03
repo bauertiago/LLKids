@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -32,6 +34,7 @@ class _CartScreenState extends State<CartScreen> {
   bool isLoadingAddresses = true;
   bool isSavingAddress = false;
 
+  bool phoneError = false;
   bool streetError = false;
   bool numberError = false;
   bool districtError = false;
@@ -42,6 +45,7 @@ class _CartScreenState extends State<CartScreen> {
   List<Address> _addresses = [];
   Address? _selectedAddress;
 
+  final phoneController = TextEditingController();
   final streetController = TextEditingController();
   final numberController = TextEditingController();
   final districtController = TextEditingController();
@@ -510,6 +514,16 @@ class _CartScreenState extends State<CartScreen> {
       children: [
         const SizedBox(height: 12),
         CustomInput(
+          label: "Telefone",
+          requiredField: true,
+          controller: phoneController,
+          hintText: "Ex: (11) 99999-9999",
+          hasError: phoneError,
+          prefixIcon: Icons.phone,
+          keyboardType: TextInputType.phone,
+        ),
+        const SizedBox(height: 8),
+        CustomInput(
           label: "Logradouro",
           requiredField: true,
           controller: streetController,
@@ -610,6 +624,7 @@ class _CartScreenState extends State<CartScreen> {
                   setState(() {
                     isEditingAddress = false;
 
+                    phoneController.clear();
                     numberController.clear();
                     streetController.clear();
                     districtController.clear();
@@ -635,6 +650,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Future<void> _saveAddress() async {
+    final phone = phoneController.text.trim();
     final street = streetController.text.trim();
     final number = numberController.text.trim();
     final district = districtController.text.trim();
@@ -642,13 +658,15 @@ class _CartScreenState extends State<CartScreen> {
     final state = stateController.text.trim();
     final zipcode = zipCodeController.text.trim();
 
-    if (street.isEmpty ||
+    if (phone.isEmpty ||
+        street.isEmpty ||
         number.isEmpty ||
         district.isEmpty ||
         city.isEmpty ||
         state.isEmpty ||
         zipcode.isEmpty) {
       setState(() {
+        phoneError = phone.isEmpty;
         streetError = street.isEmpty;
         numberError = number.isEmpty;
         districtError = district.isEmpty;
@@ -658,6 +676,12 @@ class _CartScreenState extends State<CartScreen> {
       });
       _showMessage("Preencha todos os campos do endereço.");
       return;
+    }
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection("users").doc(user.uid).update(
+        {"phone": phone},
+      );
     }
 
     final address = Address(

@@ -352,7 +352,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _info("Nome", userData!["name"]),
           _info("Email", userData!["email"].replaceRange(3, 8, "*****")),
-          _info("Telefone", userData!["phone"].replaceRange(5, 10, "*****")),
         ],
       ),
     );

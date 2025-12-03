@@ -172,7 +172,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 16),
         Text(userData!["name"], style: context.texts.titleMedium),
-        Text(userData!["email"], style: context.texts.titleSmall),
+        Text(
+          userData!["email"].replaceRange(3, 10, "*****"),
+          style: context.texts.titleSmall,
+        ),
       ],
     );
   }
@@ -351,7 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _info("Nome", userData!["name"]),
-          _info("Email", userData!["email"].replaceRange(3, 8, "*****")),
+          _info("Email", userData!["email"].replaceRange(3, 10, "*****")),
         ],
       ),
     );

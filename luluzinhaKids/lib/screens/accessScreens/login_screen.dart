@@ -10,6 +10,7 @@ import 'package:luluzinhakids/services/firebase_auth_service.dart';
 import 'package:luluzinhakids/utils/email_validator.dart';
 import 'package:luluzinhakids/widgets/custom_input.dart';
 
+import '../../utils/firebase_util.dart';
 import '../adminScreens/admin_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -238,7 +239,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Entrar com o Google",
                     style: context.texts.bodyMedium,
                   ),
-                  onPressed: () {},
+                  onPressed: () async {
+                    final util = FirebaseUtil();
+                    final result = await util.signInWithGoogle();
+
+                    if (result != null) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MainScreen(initialIndex: 0),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
 

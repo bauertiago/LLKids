@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseUtil {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -35,5 +36,42 @@ class FirebaseUtil {
             .collection("addresses")
             .get();
     return snap.docs.map((doc) => {...doc.data(), "id": doc.id}).toList();
+  }
+
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return null;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await auth.signInWithCredential(credential);
+
+      // 🔥 Se o usuário é novo, cria documento no Firestore
+      final uid = userCredential.user!.uid;
+
+      final exists = await firestore.collection("users").doc(uid).get();
+
+      if (!exists.exists) {
+        await firestore.collection("users").doc(uid).set({
+          "name": userCredential.user!.displayName ?? "",
+          "email": userCredential.user!.email ?? "",
+          "phone": userCredential.user!.phoneNumber ?? "",
+          "role": "user",
+          "createdAt": DateTime.now().toIso8601String(),
+        });
+      }
+
+      return userCredential;
+    } catch (e) {
+      print("Erro Google Sign-In: $e");
+      return null;
+    }
   }
 }

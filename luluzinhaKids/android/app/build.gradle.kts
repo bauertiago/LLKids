@@ -27,10 +27,16 @@ android {
         applicationId = "com.example.luluzinhakids"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        multiDexEnabled = true // Manter Multidex
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro" // Manter o ProGuard
+        )
     }
 
     buildTypes {
@@ -40,6 +46,12 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+
+    testImplementation("io.flutter:flutter-test")
+
 }
 
 flutter {

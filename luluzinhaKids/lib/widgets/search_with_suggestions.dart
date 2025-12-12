@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModel/product_model.dart';
 
 import '../services/product_service.dart';
 import 'custom_search_bar.dart';
@@ -53,20 +53,19 @@ class _SearchWithSuggestionsState extends State<SearchWithSuggestions> {
         ],
       ),
       child: Column(
-        children:
-            _suggestions.map((product) {
-              return ListTile(
-                title: Text(product.name),
-                dense: true,
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                  _searchController.clear();
-                  setState(() => _suggestions = []);
+        children: _suggestions.map((product) {
+          return ListTile(
+            title: Text(product.name),
+            dense: true,
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              _searchController.clear();
+              setState(() => _suggestions = []);
 
-                  widget.onProductSelected?.call(product);
-                },
-              );
-            }).toList(),
+              widget.onProductSelected?.call(product);
+            },
+          );
+        }).toList(),
       ),
     );
   }

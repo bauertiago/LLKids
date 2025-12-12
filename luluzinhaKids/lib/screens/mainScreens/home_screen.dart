@@ -2,7 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModel/product_model.dart';
 import 'package:luluzinhakids/screens/productsScreens/product_detail_screen.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 import 'package:luluzinhakids/widgets/search_with_suggestions.dart';
@@ -51,35 +51,33 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          loaded
-              ? SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CustomHeader(showBackButton: false, showLogo: true),
-                    SearchWithSuggestions(
-                      onProductSelected: (product) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => ProductDetailScreen(product: product),
-                          ),
-                        );
-                      },
-                    ),
-                    Column(
-                      children: [
-                        const SizedBox(height: 8),
-                        _buildCategories(),
-                        _buildHighlight(),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-              : const Center(child: CircularProgressIndicator()),
+      body: loaded
+          ? SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomHeader(showBackButton: false, showLogo: true),
+                  SearchWithSuggestions(
+                    onProductSelected: (product) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProductDetailScreen(product: product),
+                        ),
+                      );
+                    },
+                  ),
+                  Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildCategories(),
+                      _buildHighlight(),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -198,10 +196,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color:
-                        _currentIndex == index
-                            ? const Color(0xFFFF2BA9)
-                            : Colors.grey.shade400,
+                    color: _currentIndex == index
+                        ? const Color(0xFFFF2BA9)
+                        : Colors.grey.shade400,
                   ),
                 ),
               ),

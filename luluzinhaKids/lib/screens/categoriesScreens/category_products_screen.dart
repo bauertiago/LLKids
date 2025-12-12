@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModel/product_model.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 
 import '../../services/product_service.dart';
@@ -116,12 +116,11 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
-            errorBuilder:
-                (_, __, ___) => Container(
-                  color: Colors.grey.shade200,
-                  alignment: Alignment.center,
-                  child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                ),
+            errorBuilder: (_, __, ___) => Container(
+              color: Colors.grey.shade200,
+              alignment: Alignment.center,
+              child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+            ),
           ),
 
           Positioned(

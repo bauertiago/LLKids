@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModel/product_model.dart';
 import 'package:luluzinhakids/screens/mainScreens/main_screen.dart';
 import 'package:luluzinhakids/services/cart_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
@@ -61,10 +61,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       final parcelas = opcao["parcelas"] as int;
       final comJuros = opcao["comJuros"] as bool;
 
-      double valorParcela =
-          comJuros
-              ? calcularParcelaComJuros(valorTotal, parcelas, juros)
-              : valorTotal / parcelas;
+      double valorParcela = comJuros
+          ? calcularParcelaComJuros(valorTotal, parcelas, juros)
+          : valorTotal / parcelas;
 
       if (valorParcela >= parcelaMinima) {
         double total = comJuros ? valorParcela * parcelas : valorTotal;
@@ -124,12 +123,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           widget.product.imageUrl,
           height: 350,
           fit: BoxFit.cover,
-          errorBuilder:
-              (_, __, ___) => Container(
-                height: 350,
-                color: Colors.grey.shade300,
-                child: const Icon(Icons.image_not_supported, size: 45),
-              ),
+          errorBuilder: (_, __, ___) => Container(
+            height: 350,
+            color: Colors.grey.shade300,
+            child: const Icon(Icons.image_not_supported, size: 45),
+          ),
         ),
       ),
     );
@@ -169,52 +167,48 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children:
-                allSizes.map((size) {
-                  final bool isAvailable = product.stock.containsKey(size);
-                  final bool isSelected = selectedSize == size;
+            children: allSizes.map((size) {
+              final bool isAvailable = product.stock.containsKey(size);
+              final bool isSelected = selectedSize == size;
 
-                  Color bgColor;
-                  Color textColor;
-                  Color borderColor;
+              Color bgColor;
+              Color textColor;
+              Color borderColor;
 
-                  if (!isAvailable) {
-                    bgColor = Colors.grey.shade300;
-                    textColor = Colors.grey;
-                    borderColor = Colors.transparent;
-                  } else if (isSelected) {
-                    bgColor = context.colors.secondary;
-                    textColor = Colors.white;
-                    borderColor = context.colors.secondary;
-                  } else {
-                    bgColor = const Color(0xFFDDE1F6);
-                    textColor = Colors.black87;
-                    borderColor = Colors.transparent;
-                  }
+              if (!isAvailable) {
+                bgColor = Colors.grey.shade300;
+                textColor = Colors.grey;
+                borderColor = Colors.transparent;
+              } else if (isSelected) {
+                bgColor = context.colors.secondary;
+                textColor = Colors.white;
+                borderColor = context.colors.secondary;
+              } else {
+                bgColor = const Color(0xFFDDE1F6);
+                textColor = Colors.black87;
+                borderColor = Colors.transparent;
+              }
 
-                  return ChoiceChip(
-                    label: Text(
-                      size,
-                      style: context.texts.bodyMedium?.copyWith(
-                        color: textColor,
-                      ),
-                    ),
-                    onSelected:
-                        isAvailable
-                            ? (_) {
-                              setState(() => selectedSize = size);
-                            }
-                            : null,
-                    selected: isSelected,
-                    selectedColor: context.colors.secondary,
-                    disabledColor: Colors.grey.shade300,
-                    backgroundColor: bgColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: borderColor, width: 1.5),
-                    ),
-                  );
-                }).toList(),
+              return ChoiceChip(
+                label: Text(
+                  size,
+                  style: context.texts.bodyMedium?.copyWith(color: textColor),
+                ),
+                onSelected: isAvailable
+                    ? (_) {
+                        setState(() => selectedSize = size);
+                      }
+                    : null,
+                selected: isSelected,
+                selectedColor: context.colors.secondary,
+                disabledColor: Colors.grey.shade300,
+                backgroundColor: bgColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: borderColor, width: 1.5),
+                ),
+              );
+            }).toList(),
           ),
         ],
       ),

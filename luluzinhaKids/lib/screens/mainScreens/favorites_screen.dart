@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/productModels/product_model.dart';
+import 'package:luluzinhakids/models/productModel/product_model.dart';
 import 'package:luluzinhakids/screens/productsScreens/product_detail_screen.dart';
 import 'package:luluzinhakids/services/favorites_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
@@ -111,12 +111,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
-              errorBuilder:
-                  (_, __, ___) => Container(
-                    color: Colors.grey.shade200,
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.broken_image, size: 40),
-                  ),
+              errorBuilder: (_, __, ___) => Container(
+                color: Colors.grey.shade200,
+                alignment: Alignment.center,
+                child: const Icon(Icons.broken_image, size: 40),
+              ),
             ),
           ),
 

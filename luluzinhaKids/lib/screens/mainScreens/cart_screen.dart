@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
-import 'package:luluzinhakids/models/addressModels/address_model.dart';
+import 'package:luluzinhakids/models/addressModel/address_model.dart';
 import 'package:luluzinhakids/screens/mainScreens/main_screen.dart';
 import 'package:luluzinhakids/screens/paymentScreens/payment_screen.dart';
 import 'package:luluzinhakids/services/address_service.dart';
 import 'package:luluzinhakids/widgets/custom_header.dart';
 
-import '../../models/productModels/product_model.dart';
+import '../../models/productModel/product_model.dart';
 import '../../services/cart_service.dart';
 import '../../widgets/custom_input.dart';
 
@@ -148,16 +148,16 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(height: 16),
 
                 Expanded(
-                  child:
-                      cart.isEmpty ? _buildEmptyCart() : _buildCartList(cart),
+                  child: cart.isEmpty
+                      ? _buildEmptyCart()
+                      : _buildCartList(cart),
                 ),
               ],
             ),
           ),
-          bottomNavigationBar:
-              cart.isEmpty
-                  ? _buildBottomEmptyCartButton()
-                  : _buildBottomCartButtons(total: total),
+          bottomNavigationBar: cart.isEmpty
+              ? _buildBottomEmptyCartButton()
+              : _buildBottomCartButtons(total: total),
         );
       },
     );
@@ -244,14 +244,13 @@ class _CartScreenState extends State<CartScreen> {
                   width: 150,
                   height: 170,
                   fit: BoxFit.cover,
-                  errorBuilder:
-                      (_, __, ___) => Container(
-                        width: 150,
-                        height: 170,
-                        color: Colors.grey.shade200,
-                        alignment: Alignment.center,
-                        child: Icon(Icons.image_not_supported, size: 28),
-                      ),
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 150,
+                    height: 170,
+                    color: Colors.grey.shade200,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.image_not_supported, size: 28),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -611,10 +610,9 @@ class _CartScreenState extends State<CartScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child:
-                    isSavingAddress
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text("Confirmar", style: context.texts.labelMedium),
+                child: isSavingAddress
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text("Confirmar", style: context.texts.labelMedium),
               ),
             ),
             const SizedBox(width: 10),
@@ -763,10 +761,9 @@ class _CartScreenState extends State<CartScreen> {
                                     setState(() {
                                       _addresses.removeAt(i);
                                       if (_selectedAddress?.id == addr.id) {
-                                        _selectedAddress =
-                                            _addresses.isNotEmpty
-                                                ? _addresses.last
-                                                : null;
+                                        _selectedAddress = _addresses.isNotEmpty
+                                            ? _addresses.last
+                                            : null;
                                       }
                                     });
                                     Navigator.pop(context);

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../models/customerModels/customer_model.dart';
+import '../models/customerModel/customer_model.dart';
 
 class CustomerService {
   static final CustomerService _instance = CustomerService._internal();

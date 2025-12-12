@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../models/addressModels/address_model.dart';
+import '../models/addressModel/address_model.dart';
 
 class AddressService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -32,8 +32,7 @@ class AddressService {
   }
 
   Future<Address> addAddress(Address address) async {
-    final data = address.toMap()
-      ..["createdAt"] = FieldValue.serverTimestamp();
+    final data = address.toMap()..["createdAt"] = FieldValue.serverTimestamp();
 
     final doc = await _addressCollection().add(data);
 

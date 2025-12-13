@@ -32,7 +32,7 @@ O sistema segue uma arquitetura em **camadas**, separando responsabilidades entr
 ![Diagrama de Caso de Uso](./images/DiagramaCasoDeUso.png)
 
 📌 Diagrama de Classes  
-![Diagrama de Classes](./images/DiagramaDeClasses.png)
+![Diagrama de Classes](./images/DiagramDeClasses.png)
 
 📌 Diagrama de Coleções e Documentos  
 ![Diagrama Relacional](./images/DiagramaDeColecoesEDocumentos.png)

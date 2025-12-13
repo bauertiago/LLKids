@@ -8,29 +8,22 @@ class CardService {
   String get uid => _auth.currentUser!.uid;
 
   /// Caminho do cartão salvo
-  DocumentReference get cardRef =>
-      _db.collection('users').doc(uid).collection('payment').doc('card');
-
-  /// 🔥 Salvar cartão no Firestore
-  Future<void> saveCard({
-    required String number,
-    required String holder,
-  }) async {
-    await cardRef.set({
-      'holder': holder,
-      'last4': number.substring(number.length - 4),
-      'createdAt': DateTime.now().toIso8601String(),
-    });
-  }
+  CollectionReference get cardCollection =>
+      _db.collection('users').doc(uid).collection('card');
 
   /// 🔥 Buscar cartão salvo (se existir)
   Future<Map<String, dynamic>?> getSavedCard() async {
-    final snap = await cardRef.get();
-    return snap.exists ? snap.data() as Map<String, dynamic> : null;
+    final snap = await cardCollection.limit(1).get();
+    if (snap.docs.isEmpty) return null;
+    return snap.docs.first.data() as Map<String, dynamic>;
   }
 
   /// 🔥 Remover cartão salvo
   Future<void> removeCard() async {
-    await cardRef.delete();
+    final snap = await cardCollection.get();
+
+    for (final doc in snap.docs) {
+      await doc.reference.delete();
+    }
   }
 }

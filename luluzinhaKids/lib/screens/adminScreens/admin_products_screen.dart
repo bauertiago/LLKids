@@ -25,6 +25,19 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
 
         final products = snapshot.data!.docs;
 
+        if (products.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                "Nenhum produto encontrado. \nUse a aba 'Cadastrar' para adicionar novos itens.",
+                style: context.texts.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
         return ListView.builder(
           itemCount: products.length,
           itemBuilder: (_, i) {
@@ -117,69 +130,67 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
                             ),
                           ),
 
-                          itemBuilder:
-                              (_) => [
-                                PopupMenuItem(
-                                  value: "edit",
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.edit,
-                                        size: 18,
-                                        color: context.colors.secondary,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        "Editar",
-                                        style: context.texts.bodyMedium,
-                                      ),
-                                    ],
+                          itemBuilder: (_) => [
+                            PopupMenuItem(
+                              value: "edit",
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit,
+                                    size: 18,
+                                    color: context.colors.secondary,
                                   ),
-                                ),
-                                PopupMenuItem(
-                                  value: "delete_item",
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.remove_circle,
-                                        size: 18,
-                                        color: Colors.orange,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        "Remover tamanho",
-                                        style: context.texts.bodyMedium,
-                                      ),
-                                    ],
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Editar",
+                                    style: context.texts.bodyMedium,
                                   ),
-                                ),
-                                PopupMenuItem(
-                                  value: "delete_product",
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.delete,
-                                        size: 18,
-                                        color: Colors.red,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        "Deletar produto",
-                                        style: context.texts.bodyMedium,
-                                      ),
-                                    ],
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: "delete_item",
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.remove_circle,
+                                    size: 18,
+                                    color: Colors.orange,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Remover tamanho",
+                                    style: context.texts.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: "delete_product",
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    size: 18,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Deletar produto",
+                                    style: context.texts.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           onSelected: (op) async {
                             if (op == "edit") {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder:
-                                      (_) => AdminEditProductScreen(
-                                        productId: product.id,
-                                      ),
+                                  builder: (_) => AdminEditProductScreen(
+                                    productId: product.id,
+                                  ),
                                 ),
                               );
                               return;
@@ -209,35 +220,31 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
 
                               final confirm = await showDialog<bool>(
                                 context: context,
-                                builder:
-                                    (_) => AlertDialog(
-                                      title: const Text("Deletar produto"),
-                                      content: const Text(
-                                        "Tem certeza? O estoque está zerado e isso apagará o produto definitivamente.",
+                                builder: (_) => AlertDialog(
+                                  title: const Text("Deletar produto"),
+                                  content: const Text(
+                                    "Tem certeza? O estoque está zerado e isso apagará o produto definitivamente.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor:
+                                            context.colors.secondary,
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor:
-                                                context.colors.secondary,
-                                          ),
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: const Text("Cancelar"),
-                                        ),
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor:
-                                                context.colors.primary,
-                                          ),
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, true),
-                                          child: const Text("Deletar"),
-                                        ),
-                                      ],
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text("Cancelar"),
                                     ),
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: context.colors.primary,
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text("Deletar"),
+                                    ),
+                                  ],
+                                ),
                               );
 
                               if (confirm == true) {
@@ -353,13 +360,12 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
                 hint: const Text("Selecione o tamanho"),
                 value: selectedSize,
                 isExpanded: true,
-                items:
-                    sizes.map((e) {
-                      return DropdownMenuItem(
-                        value: e,
-                        child: Text("$e • ${stock[e]} unidades"),
-                      );
-                    }).toList(),
+                items: sizes.map((e) {
+                  return DropdownMenuItem(
+                    value: e,
+                    child: Text("$e • ${stock[e]} unidades"),
+                  );
+                }).toList(),
                 onChanged: (val) {
                   selectedSize = val;
                   Navigator.of(context).pop(); // fecha primeiro diálogo
@@ -376,27 +382,26 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
   void _confirmDeleteOne(String productId, String size, int currentQty) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text("Confirmar remoção"),
-            content: Text("Deseja remover 1 unidade do tamanho $size?"),
-            actions: [
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: context.colors.secondary,
-                ),
-                onPressed: () => Navigator.pop(context, false),
-                child: Text("Cancelar"),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: context.colors.primary,
-                ),
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Remover"),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text("Confirmar remoção"),
+        content: Text("Deseja remover 1 unidade do tamanho $size?"),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: context.colors.secondary,
+            ),
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancelar"),
           ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: context.colors.primary,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Remover"),
+          ),
+        ],
+      ),
     );
 
     if (confirm == true) {

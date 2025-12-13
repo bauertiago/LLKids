@@ -31,6 +31,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       appBar: AppBar(
         title: Text(titles[currentIndex], style: context.texts.labelLarge),
         backgroundColor: context.colors.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         actions: [
           IconButton(

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../models/productModels/product_model.dart';
+import '../models/productModel/product_model.dart';
 
 class CartService {
   final _db = FirebaseFirestore.instance;
@@ -18,7 +18,7 @@ class CartService {
       return Product(
         id: doc.id,
         name: map["name"],
-        costPrice: 0,
+        costPrice: map["costPrice"]?.toDouble() ?? 0.0,
         salePrice: map["salePrice"]?.toDouble() ?? 0.0,
         description: "",
         category: "",
@@ -43,6 +43,7 @@ class CartService {
       await doc.set({
         "name": product.name,
         "imageUrl": product.imageUrl,
+        "costPrice": product.costPrice,
         "salePrice": product.salePrice,
         "quantity": product.quantity,
         "selectedSize": product.selectedSize,
@@ -68,25 +69,24 @@ class CartService {
   }
 
   Stream<List<Product>> watchCart() => cartRef.snapshots().map(
-    (snap) =>
-        snap.docs.map((d) {
-          final map = d.data() as Map<String, dynamic>;
-          return Product(
-            id: d.id,
-            name: map["name"],
-            costPrice: 0,
-            salePrice: map["salePrice"],
-            description: "",
-            category: "",
-            imageUrl: map["imageUrl"],
-            stock: {},
-            highlight: false,
-            createdAt: DateTime.now(),
-            searchKeywords: [],
-            quantity: map["quantity"],
-            selectedSize: map["selectedSize"],
-          );
-        }).toList(),
+    (snap) => snap.docs.map((d) {
+      final map = d.data() as Map<String, dynamic>;
+      return Product(
+        id: d.id,
+        name: map["name"],
+        costPrice: map["costPrice"],
+        salePrice: map["salePrice"],
+        description: "",
+        category: "",
+        imageUrl: map["imageUrl"],
+        stock: {},
+        highlight: false,
+        createdAt: DateTime.now(),
+        searchKeywords: [],
+        quantity: map["quantity"],
+        selectedSize: map["selectedSize"],
+      );
+    }).toList(),
   );
 
   double getTotal(List<Product> cart) =>
@@ -110,11 +110,10 @@ class CartService {
     for (var doc in snap.docs) {
       final data = doc.data() as Map<String, dynamic>;
       final productId = doc.id;
-      final productDoc =
-          await FirebaseFirestore.instance
-              .collection("products")
-              .doc(productId)
-              .get();
+      final productDoc = await FirebaseFirestore.instance
+          .collection("products")
+          .doc(productId)
+          .get();
 
       double costPrice = 0;
       if (productDoc.exists) {

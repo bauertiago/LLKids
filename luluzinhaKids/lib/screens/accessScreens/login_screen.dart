@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   FirebaseAuthService authService = FirebaseAuthService();
+  final firebaseUtil = FirebaseUtil();
 
   void _showMessage(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -66,39 +67,42 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       setState(() => loading = true);
 
-      final credential = await authService.makeLogin(email, password);
+      final userCredential = await authService.makeLogin(email, password);
+      final user = userCredential.user;
 
-      if (!credential.user!.emailVerified) {
-        _showMessage("Verifique seu e-mail antes de entrar");
+      if (user != null) {
+        if (!user.emailVerified) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  VerifyEmailScreen(email: user.email!, isRegistration: false),
+            ),
+          );
+          await user.sendEmailVerification();
+          return;
+        }
 
-        authService.logout();
+        final doc = await FirebaseFirestore.instance
+            .collection("users")
+            .doc(userCredential.user!.uid)
+            .get();
+        final role = doc.data()?["role"] ?? "user";
+
+        if (role == "admin") {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+            (Route<dynamic> route) => false,
+          );
+          return;
+        }
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => VerifyEmailScreen()),
+          MaterialPageRoute(builder: (_) => const MainScreen()),
         );
-        return;
       }
-
-      final doc =
-          await FirebaseFirestore.instance
-              .collection("users")
-              .doc(credential.user!.uid)
-              .get();
-      final role = doc.data()?["role"] ?? "user";
-
-      if (role == "admin") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
-        );
-        return;
-      }
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
     } on FirebaseAuthException catch (e) {
       const invalidCodes = [
         "user-not-found",
@@ -239,19 +243,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Entrar com o Google",
                     style: context.texts.bodyMedium,
                   ),
-                  onPressed: () async {
-                    final util = FirebaseUtil();
-                    final result = await util.signInWithGoogle();
+                  onPressed: loading
+                      ? null
+                      : () async {
+                          try {
+                            setState(() => loading = true);
+                            final userCredential = await firebaseUtil
+                                .signInWithGoogle();
 
-                    if (result != null) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const MainScreen(initialIndex: 0),
-                        ),
-                      );
-                    }
-                  },
+                            if (userCredential?.user != null) {
+                              final user = userCredential!.user!;
+                              final userDoc = await firebaseUtil.firestore
+                                  .collection("users")
+                                  .doc(user.uid)
+                                  .get();
+                              final role = userDoc.data()?["role"] ?? "user";
+                              if (role == "admin") {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminHomeScreen(),
+                                  ),
+                                  (Route<dynamic> route) => false,
+                                );
+                              } else {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const MainScreen(initialIndex: 0),
+                                  ),
+                                );
+                              }
+                            }
+                          } on Exception catch (e) {
+                            _showMessage(
+                              "Erro no login com Google: ${e.toString()}. por favor, tente novamente.",
+                            );
+                          } finally {
+                            setState(() => loading = false);
+                          }
+                        },
                 ),
               ),
 
@@ -269,16 +301,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: context.texts.titleLarge!.copyWith(
                             color: context.colors.primary,
                           ),
-                          recognizer:
-                              TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Register(),
-                                    ),
-                                  );
-                                },
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => Register()),
+                              );
+                            },
                         ),
                       ],
                     ),

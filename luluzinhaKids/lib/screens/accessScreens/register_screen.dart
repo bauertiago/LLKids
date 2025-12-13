@@ -52,8 +52,13 @@ class _Register extends State<Register> {
     }
 
     if (!EmailValidator.isValidEmail(email)) {
-      _showMessage("Digite um email válido.");
-      return;
+      _showMessage(
+        "Por favor, insira um e-mail com formato válido (ex: seu.email@dominio.com).",
+      );
+      setState(() {
+        emailError = true;
+        return;
+      });
     }
 
     if (password.length < 8) {
@@ -65,22 +70,16 @@ class _Register extends State<Register> {
     try {
       setState(() => loading = true);
 
-      final credential = await firebaseUtil.register(email, password);
+      await firebaseUtil.register(email, password);
 
-      await firebaseUtil.saveUserData(credential.user!.uid, {
-        "name": name,
-        "email": email,
-        "role": "user",
-        "createdAt": DateTime.now().toIso8601String(),
-      });
-
-      await credential.user!.sendEmailVerification();
-
-      _showMessage("Cadastro realizado com sucesso!");
+      _showMessage("Cadastro realizado com sucesso! Verifique seu e-mail");
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
+        MaterialPageRoute(
+          builder: (_) =>
+              VerifyEmailScreen(name: name, email: email, isRegistration: true),
+        ),
       );
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? "Erro ao cadastrar usuário.");
@@ -175,10 +174,9 @@ class _Register extends State<Register> {
                   ),
                 ),
                 onPressed: loading ? null : doRegister,
-                child:
-                    loading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text("Cadastrar", style: context.texts.labelLarge),
+                child: loading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text("Cadastrar", style: context.texts.labelLarge),
               ),
 
               Center(
@@ -194,16 +192,15 @@ class _Register extends State<Register> {
                           style: context.texts.titleLarge!.copyWith(
                             color: context.colors.primary,
                           ),
-                          recognizer:
-                              TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => LoginScreen(),
-                                    ),
-                                  );
-                                },
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => LoginScreen(),
+                                ),
+                              );
+                            },
                         ),
                       ],
                     ),

@@ -3,12 +3,22 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:luluzinhakids/extensions/context_extensions.dart';
+import 'package:luluzinhakids/utils/firebase_util.dart';
 
 import '../mainScreens/main_screen.dart';
 import 'login_screen.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
-  const VerifyEmailScreen({super.key});
+  final String? name;
+  final String email;
+  final bool isRegistration;
+
+  const VerifyEmailScreen({
+    super.key,
+    this.name,
+    required this.email,
+    this.isRegistration = false,
+  });
 
   @override
   State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
@@ -17,6 +27,7 @@ class VerifyEmailScreen extends StatefulWidget {
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   bool loading = false;
   final auth = FirebaseAuth.instance;
+  final firebaseUtil = FirebaseUtil();
 
   DateTime? lastEmailSent;
   Timer? timer;
@@ -27,13 +38,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
     timer = Timer.periodic(const Duration(seconds: 3), (_) async {
       await auth.currentUser?.reload();
-      if (auth.currentUser?.emailVerified ?? false) {
-        timer?.cancel();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 0)),
-        );
-      }
       checkVerification(auto: true);
     });
   }
@@ -82,22 +86,47 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 
   Future<void> checkVerification({bool auto = false}) async {
-    await auth.currentUser!.reload();
-    if (auth.currentUser!.emailVerified) {
+    final user = auth.currentUser;
+
+    if (user == null) {
       timer?.cancel();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 0)),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
       return;
     }
-    if (!auto) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("E-mail ainda não verificado."),
-          backgroundColor: context.colors.secondary,
-        ),
-      );
+
+    if (user.emailVerified) {
+      timer?.cancel();
+      if (widget.isRegistration && widget.name != null) {
+        try {
+          await firebaseUtil.saveUserData(user.uid, {
+            "name": widget.name!,
+            "email": widget.email,
+            "role": "User",
+            "createdAt": DateTime.now().toIso8601String(),
+          });
+        } catch (e) {
+          print(
+            "Erro ao salvar dados do usuário no Firestore após verificação: $e",
+          );
+        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 0)),
+        );
+        return;
+      }
+      if (!auto) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("E-mail ainda não verificado."),
+            backgroundColor: context.colors.secondary,
+          ),
+        );
+      }
     }
   }
 
@@ -133,17 +162,16 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
               ElevatedButton(
                 onPressed: loading ? null : resendEmail,
-                child:
-                    loading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Text("Reenviar e-mail"),
+                child: loading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text("Reenviar e-mail"),
               ),
 
               TextButton(

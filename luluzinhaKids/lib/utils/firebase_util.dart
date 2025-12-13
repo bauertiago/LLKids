@@ -29,17 +29,19 @@ class FirebaseUtil {
   }
 
   Future<List<Map<String, dynamic>>> loadAddresses(String uid) async {
-    final snap =
-        await firestore
-            .collection("users")
-            .doc(uid)
-            .collection("addresses")
-            .get();
+    final snap = await firestore
+        .collection("users")
+        .doc(uid)
+        .collection("addresses")
+        .get();
     return snap.docs.map((doc) => {...doc.data(), "id": doc.id}).toList();
   }
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
+      final googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut();
+
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) return null;
 
@@ -62,7 +64,6 @@ class FirebaseUtil {
         await firestore.collection("users").doc(uid).set({
           "name": userCredential.user!.displayName ?? "",
           "email": userCredential.user!.email ?? "",
-          "phone": userCredential.user!.phoneNumber ?? "",
           "role": "user",
           "createdAt": DateTime.now().toIso8601String(),
         });
@@ -71,7 +72,7 @@ class FirebaseUtil {
       return userCredential;
     } catch (e) {
       print("Erro Google Sign-In: $e");
-      return null;
     }
+    return null;
   }
 }

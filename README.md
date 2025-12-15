@@ -32,16 +32,16 @@ O sistema segue uma arquitetura em **camadas**, separando responsabilidades entr
 ![Diagrama de Caso de Uso](./images/DiagramaCasoDeUso.png)
 
 📌 Diagrama de Classes  
-![Diagrama de Classes](./images/DiagramaDeClasse.png)
+![Diagrama de Classes](./images/DiagramDeClasses.png)
 
-📌 Diagrama Relacional  
-![Diagrama Relacional](./images/DiagramaRelacional.png)
+📌 Diagrama de Coleções e Documentos  
+![Diagrama Relacional](./images/DiagramaDeColecoesEDocumentos.png)
 
 ---
 
 ## 💻 Tecnologias Utilizadas
 
-- **Backend:** Java + Spring Boot
-- **Banco de Dados:** PostgreSQL (pode ser adaptado para MySQL)
-- **Frontend:** Flutter
+- **Backend:** Firebase
+- **Banco de Dados:** firestore/NoSql
+- **Frontend:** Dart/Flutter
 - **Controle de versão:** Git + GitHub

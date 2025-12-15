@@ -168,7 +168,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             spacing: 8,
             runSpacing: 8,
             children: allSizes.map((size) {
-              final bool isAvailable = product.stock.containsKey(size);
+              final int stockCount = product.stock[size] ?? 0;
+              final bool isAvailable = stockCount > 0;
               final bool isSelected = selectedSize == size;
 
               Color bgColor;

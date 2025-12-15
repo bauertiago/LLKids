@@ -13,7 +13,10 @@ class CardService {
 
   /// 🔥 Buscar cartão salvo (se existir)
   Future<Map<String, dynamic>?> getSavedCard() async {
-    final snap = await cardCollection.limit(1).get();
+    final snap = await cardCollection
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
     if (snap.docs.isEmpty) return null;
     return snap.docs.first.data() as Map<String, dynamic>;
   }

@@ -5,6 +5,7 @@ class SavedCard {
   final String holder;
   final String last4;
   final String brand;
+  final String paymentMethodId;
   final DateTime? createdAt;
 
   SavedCard({
@@ -12,6 +13,7 @@ class SavedCard {
     required this.holder,
     required this.last4,
     required this.brand,
+    required this.paymentMethodId,
     this.createdAt,
   });
 
@@ -22,6 +24,7 @@ class SavedCard {
       holder: data['holder'] as String,
       last4: data['last4'] as String,
       brand: data['brand'] as String,
+      paymentMethodId: data['paymentMethodId'] as String,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }

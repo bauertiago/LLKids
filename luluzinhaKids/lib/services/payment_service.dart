@@ -24,9 +24,7 @@ class PaymentService {
     required String clientSecret,
     String? customerName,
   }) async {
-    final billingDetails = BillingDetails(
-      name: customerName ?? "Cliente Luluzinha Kids",
-    );
+    final billingDetails = BillingDetails(name: customerName);
     await Stripe.instance.initPaymentSheet(
       paymentSheetParameters: SetupPaymentSheetParameters(
         paymentIntentClientSecret: clientSecret,
@@ -96,7 +94,14 @@ class PaymentService {
     final items = intent["items"];
     final total = intent["total"];
 
-    await presentPaymentSheet(clientSecret: clientSecret);
+    try {
+      await presentPaymentSheet(clientSecret: clientSecret);
+    } on Exception catch (e) {
+      // 🚨 NOVO: Se o PaymentSheet for fechado ou falhar, a exceção é lançada AQUI.
+      print('Erro/Cancelamento após presentPaymentSheet: $e');
+      // Você deve lidar com este erro (ex: notificar o usuário)
+      rethrow; // Re-lança para notificar a tela de pagamento
+    }
 
     final orderId = await createOrder(
       items: items,

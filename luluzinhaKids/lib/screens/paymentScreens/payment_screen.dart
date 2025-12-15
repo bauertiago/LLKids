@@ -60,7 +60,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
     _showLoading("Processando pagamento com cartão salvo...");
 
     try {
-      final paymentMethodId = _savedCardData!['paymentMethodId'] as String;
+      final rawPaymentMethodId = _savedCardData!['paymentMethodId'];
+      if (rawPaymentMethodId == null || rawPaymentMethodId is! String) {
+        throw Exception(
+          "Dados do cartão salvo inválidos. Por favor, remova e salve o cartão novamente.",
+        );
+      }
+      final paymentMethodId = rawPaymentMethodId;
+
       await paymentService.createAndConfirmWithSavedCard(
         paymentMethodId: paymentMethodId,
         total: totalFinal,
@@ -72,7 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } catch (e) {
       Navigator.pop(context);
       _showMessage(
-        "Falha no pagamento com cartão salvo. Tente novamente ou use um novo cartão.",
+        "Falha no pagamento com cartão salvo. Tente novamente ou use um novo cartão. Detalhe: ${e.toString().split(':')[0]}",
       );
       print("Erro no pagamento com cartão salvo: $e");
     }
